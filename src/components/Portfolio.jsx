@@ -237,8 +237,8 @@ const Portfolio = () => {
         cryptoAssets: "4",
         monthlyGrowth: "+15.7%",
       },
-      liveUrl: "https://claude.ai/artifacts/[artifact-id]",
-      githubUrl: "https://claude.ai/artifacts/[artifact-id]",
+      liveUrl: "https://finance-dashboard-seven-phi.vercel.app/",
+      githubUrl: "https://github.com/ahmed12g4/-FinanceDashboard.git",
       caseStudyUrl: null,
     },
     {
