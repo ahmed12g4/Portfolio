@@ -419,7 +419,7 @@ useEffect(() => {
         activeUsers: "1K+",
       },
       liveUrl: "https://ai-notes-sepia.vercel.app/",
-      githubUrl: "https://github.com/ahmed12g4/Ai-Notes",
+      githubUrl: "https://github.com/ahmed12g4/Ai-Notes.git",
       caseStudyUrl: null,
     },
     {
