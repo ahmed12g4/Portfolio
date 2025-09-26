@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect, useRef } from "react";
 import {
@@ -39,7 +40,21 @@ const Portfolio = () => {
   const [typewriterText, setTypewriterText] = useState("");
   const [currentRole, setCurrentRole] = useState(0);
 
-  const [isMobile, setIsMobile] = useState(false);
+
+const [isMobile, setIsMobile] = useState(false);
+  const [reducedMotion, setReducedMotion] = useState(false);
+
+useEffect(() => {
+  const checkMobile = () => {
+    const mobile = window.innerWidth < 768;
+    setIsMobile(mobile);
+    // تفعيل الموشن المحدود للموبايل والأجهزة الضعيفة
+    setReducedMotion(mobile || window.navigator.hardwareConcurrency < 4);
+  };
+  checkMobile();
+  window.addEventListener('resize', checkMobile);
+  return () => window.removeEventListener('resize', checkMobile);
+}, []);
 
 useEffect(() => {
   const checkMobile = () => {
