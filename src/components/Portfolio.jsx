@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect, useRef } from "react";
 import {
   Menu,
@@ -20,6 +21,9 @@ import {
   Shield,
   Users,
   Award,
+  Coffee,
+  Twitter,
+  Instagram,
 } from "lucide-react";
 
 const Portfolio = () => {
@@ -31,6 +35,196 @@ const Portfolio = () => {
     clients: 0,
     experience: 0,
   });
+  const [scrollY, setScrollY] = useState(0);
+  const [typewriterText, setTypewriterText] = useState("");
+  const [currentRole, setCurrentRole] = useState(0);
+
+  const [isMobile, setIsMobile] = useState(false);
+
+useEffect(() => {
+  const checkMobile = () => {
+    setIsMobile(window.innerWidth < 768);
+  };
+  checkMobile();
+  window.addEventListener('resize', checkMobile);
+  return () => window.removeEventListener('resize', checkMobile);
+}, []);
+
+  const roles = [
+    "Full-Stack Developer",
+    "Frontend Specialist",
+    "Backend Engineer",
+    "React.js Expert",
+    "Node.js Developer",
+    "Mobile App Developer",
+    "DevOps Engineer",
+    "Database Designer",
+    "API Architect",
+    "Web Performance Expert",
+    "Code Optimizer",
+    "JavaScript Developer",
+    "TypeScript Expert",
+    "Vue.js Developer",
+    "Next.js Specialist",
+
+    "UI/UX Engineer",
+    "Performance Expert",
+    "Problem Solver",
+  ];
+
+  // Typewriter effect
+  useEffect(() => {
+    let timeout;
+    const currentRoleText = roles[currentRole];
+
+    if (typewriterText.length < currentRoleText.length) {
+      timeout = setTimeout(() => {
+        setTypewriterText(currentRoleText.slice(0, typewriterText.length + 1));
+      }, 100);
+    } else {
+      timeout = setTimeout(() => {
+        setTypewriterText("");
+        setCurrentRole((prev) => (prev + 1) % roles.length);
+      }, 2000);
+    }
+
+    return () => clearTimeout(timeout);
+  }, [typewriterText, currentRole]);
+
+  // Scroll effect
+  useEffect(() => {
+    const handleScroll = () => setScrollY(window.scrollY);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+  const toggleDarkMode = () => setDarkMode(!darkMode);
+  const toggleMobileMenu = () => setMobileMenuOpen(!mobileMenuOpen);
+
+  const scrollToSection = (id) => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    }
+    setMobileMenuOpen(false);
+  };
+
+  // Logo Component with Animation
+  const AnimatedLogo = () => {
+    const [isHovered, setIsHovered] = useState(false);
+
+    return (
+      <div
+        className="relative group cursor-pointer"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
+        {/* Outer Glow Ring */}
+        <div
+          className={`absolute -inset-2 bg-gradient-to-r from-emerald-500 via-cyan-500 to-blue-500 rounded-xl blur-lg opacity-20 transition-all duration-700 ${
+            isHovered ? "opacity-40 scale-110" : ""
+          }`}
+        ></div>
+
+        {/* Main Logo Container */}
+        <div
+          className={`relative z-10 w-12 h-12 rounded-xl bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-600/50 backdrop-blur-xl transform transition-all duration-500 ${
+            isHovered ? "scale-105 rotate-3" : ""
+          } shadow-xl`}
+        >
+          {/* Inner Gradient Border */}
+          <div className="absolute inset-[1px] rounded-xl bg-gradient-to-br from-emerald-500/20 via-cyan-500/20 to-blue-500/20"></div>
+
+          {/* Code Symbol Background */}
+          <div className="absolute inset-0 flex items-center justify-center text-2xl text-slate-700/20 font-mono">
+            {"</>"}
+          </div>
+
+          {/* Main Letters */}
+          <div className="relative z-10 flex items-center justify-center h-full">
+            <div className="flex items-center space-x-0.5">
+              <span
+                className={`text-lg font-bold bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent transition-all duration-500 ${
+                  isHovered ? "scale-110" : ""
+                }`}
+              >
+                A
+              </span>
+              <div className="w-0.5 h-4 bg-gradient-to-b from-emerald-400 to-cyan-400 mx-0.5"></div>
+              <span
+                className={`text-lg font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent transition-all duration-500 ${
+                  isHovered ? "scale-110" : ""
+                }`}
+              >
+                S
+              </span>
+            </div>
+          </div>
+
+          {/* Floating Particles */}
+          <div
+            className={`absolute top-1 right-1 w-0.5 h-0.5 bg-emerald-400 rounded-full transition-all duration-1000 ${
+              isHovered
+                ? "opacity-100 transform translate-x-1 -translate-y-1"
+                : "opacity-60"
+            }`}
+          ></div>
+          <div
+            className={`absolute bottom-1.5 left-1.5 w-1 h-1 bg-cyan-400 rounded-full transition-all duration-1000 delay-200 ${
+              isHovered
+                ? "opacity-100 transform -translate-x-1 translate-y-1"
+                : "opacity-40"
+            }`}
+          ></div>
+          <div
+            className={`absolute top-2 left-1 w-0.5 h-0.5 bg-blue-400 rounded-full transition-all duration-1000 delay-400 ${
+              isHovered
+                ? "opacity-100 transform -translate-x-0.5 -translate-y-0.5"
+                : "opacity-50"
+            }`}
+          ></div>
+        </div>
+      </div>
+    );
+  };
+
+  const techStack = [
+    {
+      name: "TypeScript",
+      color: "from-blue-400 to-blue-600",
+      icon: "TS",
+      level: 95,
+    },
+    {
+      name: "React",
+      color: "from-cyan-400 to-cyan-600",
+      icon: "⚛️",
+      level: 98,
+    },
+    {
+      name: "Next.js",
+      color: "from-gray-700 to-gray-900",
+      icon: "▲",
+      level: 92,
+    },
+    {
+      name: "Node.js",
+      color: "from-green-400 to-green-600",
+      icon: "🟢",
+      level: 90,
+    },
+    {
+      name: "PostgreSQL",
+      color: "from-blue-500 to-indigo-600",
+      icon: "🐘",
+      level: 85,
+    },
+    {
+      name: "AWS",
+      color: "from-orange-400 to-orange-600",
+      icon: "☁️",
+      level: 88,
+    },
+  ];
 
   // Intersection Observer for animations
   const [visibleSections, setVisibleSections] = useState(new Set());
@@ -87,26 +281,6 @@ const Portfolio = () => {
       });
     }
   }, [visibleSections]);
-
-  const toggleDarkMode = () => setDarkMode(!darkMode);
-  const toggleMobileMenu = () => setMobileMenuOpen(!mobileMenuOpen);
-
-  const scrollToSection = (id) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
-    setMobileMenuOpen(false);
-  };
-
-  // Logo Component with Animation
-  const AnimatedLogo = () => (
-    <div className="relative group cursor-pointer">
-      <div className="relative z-10 flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500 via-blue-500 to-teal-500 transform transition-all duration-500 group-hover:scale-110 group-hover:rotate-6">
-        <div className="absolute inset-0 bg-gradient-to-br from-cyan-400 to-teal-600 rounded-xl blur opacity-75 animate-pulse"></div>
-        <span className="relative text-white font-bold text-xl">AS</span>
-      </div>
-      <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500 to-teal-500 rounded-xl blur opacity-30 group-hover:opacity-60 transition-opacity duration-500"></div>
-    </div>
-  );
-
   const skills = [
     {
       name: "TypeScript",
@@ -167,6 +341,88 @@ const Portfolio = () => {
   ];
   const projects = [
     {
+      title: "Tomato — Food Ordering Platform",
+
+      image: "/images/projects/food/food.webp",
+      category: "Food Tech",
+      description:
+        "Complete restaurant ordering ecosystem with real-time tracking, payment integration, and admin dashboard. Built for scale with microservices architecture.",
+      longDescription:
+        "A comprehensive food delivery platform featuring restaurant management, real-time order tracking, integrated payment processing, and advanced analytics dashboard.",
+      tech: ["Next.js", "TypeScript", "Tailwind", "Stripe", "WebSockets"],
+      features: [
+        "Real-time tracking",
+        "Payment integration",
+        "Admin dashboard",
+        "Mobile responsive",
+      ],
+      color: "from-orange-400 via-red-500 to-pink-500",
+      metrics: { users: "10K+", orders: "50K+", uptime: "99.9%" },
+      // أضف هذه الروابط ↓
+      liveUrl: "https://tomato-v1.vercel.app/",
+      githubUrl: "https://github.com/ahmed12g4/Food-Del.git",
+      caseStudyUrl: null,
+    },
+
+    {
+      title: "University Management System",
+
+      image:
+        "/images/projects/university-assignments/original-bf666a92e0de53d4e5a49a710f73a8e0.PNG",
+      category: "Education",
+      description:
+        "Comprehensive academic management platform with student portal, grade management, and automated telegram notifications.",
+      longDescription:
+        "Full-stack academic management system handling course enrollment, assignment submissions, grade tracking, and automated communication.",
+      tech: [".NET", "React", "SQL Server", "Telegram API", "Azure"],
+      features: [
+        "Student portal",
+        "Grade management",
+        "Auto notifications",
+        "Course tracking",
+      ],
+      color: "from-blue-400 via-indigo-500 to-cyan-500",
+      metrics: { students: "5K+", courses: "200+", satisfaction: "95%" },
+
+      liveUrl: "https://university-assignments.vercel.app/",
+      githubUrl: "https://github.com/ahmed12g4/university-assignments.git",
+      caseStudyUrl: null,
+    },
+    {
+      title: "AI Notes – Smart Note Management Platform",
+      image:
+        "/images/projects/ai-notes/original-15996ed797ce0fc6ef4a797b28d4f6d2.webp",
+      category: "Productivity & Note-Taking",
+      description:
+        "A modern web app for smart note-taking with AI-powered summarization and seamless organization.",
+      longDescription:
+        "AI Notes is a modern web application built with React.js and Tailwind CSS to simplify note-taking and organization. It enables users to create, edit, and manage notes through an intuitive interface. The platform features AI-powered summarization for generating smart insights, advanced search to filter notes by keywords or date, and a responsive dashboard to view the latest or all notes across devices. With its clean design and smooth workflow, AI Notes enhances productivity and helps users capture and organize their ideas efficiently.",
+      tech: [
+        "React.js",
+        "TailwindCSS",
+        "Vite",
+        "Node.js",
+        "Express.js",
+        "MongoDB",
+      ],
+      features: [
+        "AI-powered note summarization",
+        "Create, edit, and organize notes",
+        "Advanced keyword & date search",
+        "Responsive dashboard (desktop & mobile)",
+        "Clean UI and smooth workflow",
+      ],
+      color: "from-blue-500 via-indigo-500 to-purple-600",
+      metrics: {
+        notesCreated: "10K+",
+        summariesGenerated: "5K+",
+        activeUsers: "1K+",
+      },
+      liveUrl: "https://ai-notes-sepia.vercel.app/",
+      githubUrl: "https://github.com/ahmed12g4/Ai-Notes",
+      caseStudyUrl: null,
+    },
+    {
       title: "Amazon MCF Integration",
       image: "/images/projects/amazon-fulfillment/amazon.png",
       category: "E-commerce Integration",
@@ -191,34 +447,9 @@ const Portfolio = () => {
       githubUrl: "https://github.com/ahmed12g4/E-commerce.git",
       caseStudyUrl: null,
     },
-
-    {
-      title: "University Management System",
-
-      image:
-        "/images/projects/university-assignments/Screenshot 2025-09-10 094725.png",
-      category: "Education",
-      description:
-        "Comprehensive academic management platform with student portal, grade management, and automated telegram notifications.",
-      longDescription:
-        "Full-stack academic management system handling course enrollment, assignment submissions, grade tracking, and automated communication.",
-      tech: [".NET", "React", "SQL Server", "Telegram API", "Azure"],
-      features: [
-        "Student portal",
-        "Grade management",
-        "Auto notifications",
-        "Course tracking",
-      ],
-      color: "from-blue-400 via-indigo-500 to-cyan-500",
-      metrics: { students: "5K+", courses: "200+", satisfaction: "95%" },
-
-      liveUrl: "https://university-assignments.vercel.app/",
-      githubUrl: "https://github.com/ahmed12g4/university-assignments.git",
-      caseStudyUrl: null,
-    },
     {
       title: "Finance Dashboard",
-      image: "/images/projects/my-finance/Screenshot 2025-09-17 224427.png",
+      image: "/images/projects/my-finance/finance.webp",
       category: "Financial Analytics",
       description:
         "Comprehensive financial dashboard with real-time crypto data, portfolio tracking, and expense management analytics.",
@@ -241,29 +472,7 @@ const Portfolio = () => {
       githubUrl: "https://github.com/ahmed12g4/-FinanceDashboard.git",
       caseStudyUrl: null,
     },
-    {
-      title: "Tomato — Food Ordering Platform",
 
-      image: "/images/projects/food/download.png",
-      category: "Food Tech",
-      description:
-        "Complete restaurant ordering ecosystem with real-time tracking, payment integration, and admin dashboard. Built for scale with microservices architecture.",
-      longDescription:
-        "A comprehensive food delivery platform featuring restaurant management, real-time order tracking, integrated payment processing, and advanced analytics dashboard.",
-      tech: ["Next.js", "TypeScript", "Tailwind", "Stripe", "WebSockets"],
-      features: [
-        "Real-time tracking",
-        "Payment integration",
-        "Admin dashboard",
-        "Mobile responsive",
-      ],
-      color: "from-orange-400 via-red-500 to-pink-500",
-      metrics: { users: "10K+", orders: "50K+", uptime: "99.9%" },
-      // أضف هذه الروابط ↓
-      liveUrl: "https://tomato-v1.vercel.app/",
-      githubUrl: "https://github.com/ahmed12g4/Food-Del.git",
-      caseStudyUrl: null,
-    },
     {
       title: "EduBridge — Learning Platform",
       // أضف هذا السطر ↓
@@ -285,29 +494,6 @@ const Portfolio = () => {
       // أضف هذه الروابط ↓
       liveUrl: "https://edubridge-delta.vercel.app/",
       githubUrl: "https://github.com/ahmed12g4/Edubridge.git",
-      caseStudyUrl: null,
-    },
-    {
-      title: "Interactive Form Builder",
-      // أضف هذا السطر ↓
-      image: "/images/projects/multi-step/preview.jpg",
-      category: "No-Code Tools", // أضف الفئة
-      description:
-        "Drag-and-drop form builder with advanced validation, conditional logic, and real-time collaboration features.",
-      longDescription:
-        "No-code form builder enabling users to create complex forms with conditional logic, multi-step workflows, and integration capabilities.",
-      tech: ["React", "TypeScript", "Framer Motion", "Node.js", "MongoDB"],
-      features: [
-        "Drag & drop",
-        "Conditional logic",
-        "Real-time collab",
-        "Analytics",
-      ],
-      color: "from-green-400 via-emerald-500 to-teal-500",
-      metrics: { forms: "1K+", submissions: "100K+", conversion: "85%" },
-      // أضف هذه الروابط ↓
-      liveUrl: "https://ahmed12g4.github.io/Multi-step/",
-      githubUrl: "https://github.com/ahmed12g4/Multi-step.git",
       caseStudyUrl: null,
     },
   ];
@@ -436,38 +622,221 @@ const Portfolio = () => {
 
   return (
     <div
-      className={`min-h-screen transition-all duration-500 relative overflow-hidden ${
-        darkMode ? "dark bg-gray-900" : "bg-gray-50"
+      className={`min-h-screen transition-all duration-700 relative overflow-hidden ${
+        darkMode
+          ? "dark bg-gradient-to-br from-gray-900 via-gray-800 to-slate-900"
+          : "bg-gradient-to-br from-slate-50 via-blue-50 to-cyan-50"
       }`}
     >
-      {/* Animated Background */}
-      <div className="fixed inset-0 z-0">
-        <div className="absolute inset-0 bg-gradient-to-br from-cyan-50 via-blue-50 to-teal-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-all duration-500"></div>
-        <div className="absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-cyan-400/20 to-blue-500/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute top-1/2 right-0 w-80 h-80 bg-gradient-to-br from-teal-400/20 to-cyan-500/20 rounded-full blur-3xl animate-pulse animation-delay-1000"></div>
-        <div className="absolute bottom-0 left-1/3 w-72 h-72 bg-gradient-to-br from-blue-400/20 to-teal-500/20 rounded-full blur-3xl animate-pulse animation-delay-2000"></div>
+      {/* Professional Dynamic Background */}
+      <div className="fixed inset-0 z-0 overflow-hidden">
+        {/* Clean base gradient */}
+        <div
+          className={`absolute inset-0 transition-all duration-1000 ${
+            darkMode
+              ? "bg-gradient-to-br from-gray-900 via-slate-900 to-gray-800"
+              : "bg-gradient-to-br from-white via-gray-50 to-slate-100"
+          }`}
+        ></div>
 
-        {/* Floating Elements */}
-        <div className="absolute top-20 left-10 w-2 h-2 bg-cyan-500 rounded-full animate-bounce animation-delay-500"></div>
-        <div className="absolute top-40 right-20 w-3 h-3 bg-teal-500 rounded-full animate-bounce animation-delay-1000"></div>
-        <div className="absolute bottom-40 left-20 w-2 h-2 bg-blue-500 rounded-full animate-bounce animation-delay-1500"></div>
-        <div className="absolute bottom-20 right-1/3 w-3 h-3 bg-cyan-500 rounded-full animate-bounce animation-delay-2000"></div>
+        {/* Dynamic mesh gradient */}
+        <div className="absolute inset-0">
+          <div
+            className={`absolute inset-0 opacity-50 animate-mesh-flow ${
+              darkMode
+                ? "bg-gradient-to-r from-cyan-900/30 via-teal-800/40 to-blue-900/30"
+                : "bg-gradient-to-r from-cyan-200/40 via-teal-300/50 to-blue-200/40"
+            }`}
+            style={{
+              background: darkMode
+                ? `radial-gradient(circle at 25% 25%, rgba(6, 182, 212, 0.25) 0%, transparent 50%),
+             radial-gradient(circle at 75% 75%, rgba(20, 184, 166, 0.3) 0%, transparent 50%),
+             radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.2) 0%, transparent 60%)`
+                : `radial-gradient(circle at 25% 25%, rgba(6, 182, 212, 0.3) 0%, transparent 50%),
+             radial-gradient(circle at 75% 75%, rgba(20, 184, 166, 0.35) 0%, transparent 50%),
+             radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.25) 0%, transparent 60%)`,
+            }}
+          ></div>
+        </div>
+
+        {/* Powerful floating spheres للكمبيوتر فقط */}
+        {!isMobile && (
+          <>
+            {/* Main dynamic sphere */}
+            <div
+              className={`absolute top-20 left-20 w-[400px] h-[400px] rounded-full animate-power-float ${
+                darkMode
+                  ? "bg-gradient-to-br from-cyan-500/30 via-teal-600/40 to-cyan-700/25"
+                  : "bg-gradient-to-br from-cyan-400/35 via-teal-500/45 to-cyan-600/30"
+              }`}
+              style={{
+                filter: "blur(70px)",
+                animation: "power-float 14s ease-in-out infinite",
+              }}
+            ></div>
+
+            {/* Secondary dynamic sphere */}
+            <div
+              className={`absolute bottom-20 right-20 w-[350px] h-[350px] rounded-full animate-power-drift ${
+                darkMode
+                  ? "bg-gradient-to-tl from-teal-500/35 via-blue-600/30 to-teal-700/25"
+                  : "bg-gradient-to-tl from-teal-400/40 via-blue-500/35 to-teal-600/30"
+              }`}
+              style={{
+                filter: "blur(60px)",
+                animation: "power-drift 16s ease-in-out infinite",
+                animationDelay: "2s",
+              }}
+            ></div>
+
+            {/* Accent sphere */}
+            <div
+              className={`absolute top-1/2 right-1/3 w-60 h-60 rounded-full animate-power-pulse ${
+                darkMode
+                  ? "bg-gradient-to-r from-blue-500/40 via-cyan-600/35 to-teal-500/30"
+                  : "bg-gradient-to-r from-blue-400/45 via-cyan-500/40 to-teal-400/35"
+              }`}
+              style={{
+                filter: "blur(50px)",
+                animation: "power-pulse 12s ease-in-out infinite",
+                animationDelay: "4s",
+              }}
+            ></div>
+          </>
+        )}
+
+        {/* Advanced particle system */}
+        <div className="absolute inset-0">
+          {[...Array(isMobile ? 12 : 35)].map((_, i) => (
+            <div
+              key={i}
+              className={`absolute rounded-full animate-power-particles opacity-70 ${
+                darkMode
+                  ? i % 4 === 0
+                    ? "bg-cyan-400 shadow-lg shadow-cyan-400/30"
+                    : i % 4 === 1
+                    ? "bg-teal-400 shadow-lg shadow-teal-400/30"
+                    : i % 4 === 2
+                    ? "bg-blue-400 shadow-lg shadow-blue-400/30"
+                    : "bg-slate-300 shadow-lg shadow-slate-300/30"
+                  : i % 4 === 0
+                  ? "bg-cyan-500 shadow-lg shadow-cyan-500/40"
+                  : i % 4 === 1
+                  ? "bg-teal-500 shadow-lg shadow-teal-500/40"
+                  : i % 4 === 2
+                  ? "bg-blue-500 shadow-lg shadow-blue-500/40"
+                  : "bg-slate-400 shadow-lg shadow-slate-400/40"
+              }`}
+              style={{
+                width: `${Math.random() * 10 + 3}px`,
+                height: `${Math.random() * 10 + 3}px`,
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                animationDelay: `${Math.random() * 8}s`,
+                animationDuration: `${6 + Math.random() * 8}s`,
+              }}
+            ></div>
+          ))}
+        </div>
+
+        {/* Tech grid pattern */}
+        <div
+          className={`absolute inset-0 opacity-15 ${
+            darkMode ? "opacity-10" : ""
+          }`}
+          style={{
+            backgroundImage: `
+        linear-gradient(${
+          darkMode ? "rgba(6, 182, 212, 0.2)" : "rgba(6, 182, 212, 0.25)"
+        } 1.5px, transparent 1.5px),
+        linear-gradient(90deg, ${
+          darkMode ? "rgba(6, 182, 212, 0.2)" : "rgba(6, 182, 212, 0.25)"
+        } 1.5px, transparent 1.5px)
+      `,
+            backgroundSize: "50px 50px",
+            animation: "tech-grid 12s linear infinite",
+          }}
+        ></div>
+
+        {/* Dynamic wave effects */}
+        {!isMobile && (
+          <div className="absolute inset-0">
+            <div
+              className={`absolute inset-0 animate-wave-power ${
+                darkMode
+                  ? "bg-gradient-to-r from-transparent via-cyan-800/15 to-transparent"
+                  : "bg-gradient-to-r from-transparent via-cyan-300/20 to-transparent"
+              }`}
+            ></div>
+
+            <div
+              className={`absolute inset-0 animate-wave-power-reverse ${
+                darkMode
+                  ? "bg-gradient-to-l from-transparent via-teal-800/15 to-transparent"
+                  : "bg-gradient-to-l from-transparent via-teal-300/20 to-transparent"
+              }`}
+              style={{ animationDelay: "3s" }}
+            ></div>
+          </div>
+        )}
+
+        {/* Professional geometric elements */}
+        {!isMobile && (
+          <div className="absolute inset-0 opacity-20">
+            <div className="absolute top-1/3 left-1/4 w-32 h-32 animate-geo-rotate">
+              <div
+                className={`w-full h-full border-2 ${
+                  darkMode ? "border-cyan-400/40" : "border-cyan-500/50"
+                } rounded-lg transform rotate-45`}
+              ></div>
+            </div>
+
+            <div className="absolute bottom-1/3 right-1/4 w-20 h-20 animate-geo-float">
+              <div
+                className={`w-full h-full ${
+                  darkMode ? "bg-teal-400/30" : "bg-teal-500/40"
+                } rounded-full`}
+              ></div>
+            </div>
+
+            <div className="absolute top-2/3 left-1/2 w-16 h-16 animate-geo-pulse">
+              <div
+                className={`w-0 h-0 border-l-8 border-r-8 border-b-16 ${
+                  darkMode ? "border-blue-400/40" : "border-blue-500/50"
+                } border-l-transparent border-r-transparent`}
+              ></div>
+            </div>
+          </div>
+        )}
+
+        {/* Ambient lighting effect */}
+        <div
+          className={`absolute inset-0 opacity-25 animate-ambient-light ${
+            darkMode
+              ? "bg-gradient-to-tr from-transparent via-slate-700/20 to-transparent"
+              : "bg-gradient-to-tr from-transparent via-slate-300/25 to-transparent"
+          }`}
+        ></div>
       </div>
 
-      {/* Navigation */}
+      {/* Enhanced Navigation */}
       <nav
         className={`fixed top-0 w-full z-50 transition-all duration-500 ${
-          darkMode
-            ? "bg-gray-900/90 backdrop-blur-xl border-gray-700"
-            : "bg-white/90 backdrop-blur-xl border-gray-200"
-        } border-b shadow-lg`}
+          scrollY > 50
+            ? darkMode
+              ? "bg-gray-900/95 backdrop-blur-2xl border-gray-700 shadow-2xl"
+              : "bg-white/95 backdrop-blur-2xl border-gray-200 shadow-2xl"
+            : darkMode
+            ? "bg-gray-900/80 backdrop-blur-xl border-gray-800"
+            : "bg-white/80 backdrop-blur-xl border-gray-100"
+        } border-b`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
             <AnimatedLogo />
 
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex space-x-8">
+            {/* Enhanced Desktop Navigation */}
+            <div className="hidden md:flex space-x-1">
               {[
                 "about",
                 "skills",
@@ -479,23 +848,26 @@ const Portfolio = () => {
                 <button
                   key={item}
                   onClick={() => scrollToSection(item)}
-                  className={`capitalize transition-all duration-300 hover:text-cyan-500 hover:scale-105 font-medium ${
-                    darkMode ? "text-gray-300" : "text-gray-700"
+                  className={`capitalize px-4 py-2 rounded-xl transition-all duration-300 hover:scale-105 font-medium relative group ${
+                    darkMode
+                      ? "text-gray-300 hover:text-cyan-400 hover:bg-gray-800/50"
+                      : "text-gray-700 hover:text-cyan-600 hover:bg-gray-100/50"
                   }`}
                 >
                   {item}
+                  <div className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-gradient-to-r from-cyan-500 to-teal-500 group-hover:w-full group-hover:left-0 transition-all duration-300"></div>
                 </button>
               ))}
             </div>
 
-            {/* Theme Toggle & Mobile Menu */}
-            <div className="flex items-center space-x-4">
+            {/* Enhanced Controls */}
+            <div className="flex items-center space-x-3">
               <button
                 onClick={toggleDarkMode}
-                className={`p-3 rounded-xl transition-all duration-300 hover:scale-110 ${
+                className={`p-3 rounded-xl transition-all duration-300 hover:scale-110 hover:rotate-12 ${
                   darkMode
-                    ? "text-yellow-400 hover:bg-gray-800 bg-gray-800/50"
-                    : "text-gray-600 hover:bg-gray-100 bg-white/50"
+                    ? "text-yellow-400 hover:bg-gray-800/70 bg-gray-800/40 shadow-lg"
+                    : "text-gray-600 hover:bg-gray-100/70 bg-white/40 shadow-lg"
                 }`}
               >
                 {darkMode ? <Sun size={20} /> : <Moon size={20} />}
@@ -505,8 +877,8 @@ const Portfolio = () => {
                 onClick={toggleMobileMenu}
                 className={`md:hidden p-3 rounded-xl transition-all duration-300 hover:scale-110 ${
                   darkMode
-                    ? "text-gray-300 hover:bg-gray-800 bg-gray-800/50"
-                    : "text-gray-700 hover:bg-gray-100 bg-white/50"
+                    ? "text-gray-300 hover:bg-gray-800/70 bg-gray-800/40"
+                    : "text-gray-700 hover:bg-gray-100/70 bg-white/40"
                 }`}
               >
                 {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -515,16 +887,16 @@ const Portfolio = () => {
           </div>
         </div>
 
-        {/* Mobile Menu */}
+        {/* Enhanced Mobile Menu */}
         {mobileMenuOpen && (
           <div
-            className={`md:hidden transition-all duration-300 ${
+            className={`md:hidden transition-all duration-500 transform ${
               darkMode
-                ? "bg-gray-900/95 backdrop-blur-xl border-gray-800"
-                : "bg-white/95 backdrop-blur-xl border-gray-200"
-            } border-t`}
+                ? "bg-gray-900/98 backdrop-blur-2xl border-gray-800"
+                : "bg-white/98 backdrop-blur-2xl border-gray-200"
+            } border-t shadow-2xl`}
           >
-            <div className="px-4 py-6 space-y-4">
+            <div className="px-6 py-8 space-y-2">
               {[
                 "about",
                 "skills",
@@ -532,15 +904,16 @@ const Portfolio = () => {
                 "experience",
                 "services",
                 "contact",
-              ].map((item) => (
+              ].map((item, index) => (
                 <button
                   key={item}
                   onClick={() => scrollToSection(item)}
-                  className={`block w-full text-left px-4 py-3 rounded-xl capitalize transition-all duration-300 hover:scale-105 ${
+                  className={`block w-full text-left px-6 py-4 rounded-xl capitalize transition-all duration-300 hover:scale-105 transform ${
                     darkMode
-                      ? "text-gray-300 hover:bg-gray-800"
-                      : "text-gray-700 hover:bg-gray-100"
+                      ? "text-gray-300 hover:bg-gray-800/70 hover:text-cyan-400"
+                      : "text-gray-700 hover:bg-gray-100/70 hover:text-cyan-600"
                   }`}
+                  style={{ animationDelay: `${index * 50}ms` }}
                 >
                   {item}
                 </button>
@@ -549,134 +922,247 @@ const Portfolio = () => {
           </div>
         )}
       </nav>
-
-      {/* Hero Section */}
-      <section className="relative z-10 pt-32 pb-20 px-4 sm:px-6 lg:px-8 min-h-screen flex items-center">
-        <div className="max-w-7xl mx-auto text-center">
-          <div className="animate-fade-in-up">
+      {/* Enhanced Hero Section */}
+      <section className="relative z-10 pt-24 pb-16 px-4 sm:px-6 lg:px-8 min-h-screen flex items-center">
+        <div className="max-w-6xl mx-auto text-center">
+          <div className="space-y-6">
+            {/* Compact Status Badges */}
             <div className="flex flex-wrap justify-center gap-3 mb-8">
-              <span
-                className={`px-4 py-2 rounded-full text-sm font-semibold shadow-lg backdrop-blur-sm ${
+              <div
+                className={`group px-4 py-2 rounded-full text-xs font-medium shadow-lg backdrop-blur-sm transform hover:scale-105 transition-all duration-300 ${
                   darkMode
-                    ? "bg-gray-800/80 text-cyan-400 border border-cyan-500/20"
-                    : "bg-white/80 text-cyan-700 border border-cyan-200"
+                    ? "bg-gradient-to-r from-gray-800/90 to-gray-700/90 text-cyan-400 border border-cyan-500/30 shadow-cyan-500/20"
+                    : "bg-gradient-to-r from-white/90 to-gray-50/90 text-cyan-700 border border-cyan-200 shadow-cyan-200/50"
                 }`}
               >
-                🚀 Full-Stack Developer
-              </span>
-              <span
-                className={`px-4 py-2 rounded-full text-sm font-semibold shadow-lg backdrop-blur-sm ${
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                  Available for Work
+                </div>
+              </div>
+              <div
+                className={`px-4 py-2 rounded-full text-xs font-medium shadow-lg backdrop-blur-sm hover:scale-105 transition-all duration-300 ${
                   darkMode
-                    ? "bg-gray-800/80 text-teal-400 border border-teal-500/20"
-                    : "bg-white/80 text-teal-700 border border-teal-200"
+                    ? "bg-gradient-to-r from-gray-800/90 to-gray-700/90 text-teal-400 border border-teal-500/30"
+                    : "bg-gradient-to-r from-white/90 to-gray-50/90 text-teal-700 border border-teal-200"
                 }`}
               >
-                ⚡ Performance Expert
-              </span>
-              <span
-                className={`px-4 py-2 rounded-full text-sm font-semibold shadow-lg backdrop-blur-sm ${
+                <span className="mr-2">☕</span>
+                Coffee Driven
+              </div>
+              <div
+                className={`px-4 py-2 rounded-full text-xs font-medium shadow-lg backdrop-blur-sm hover:scale-105 transition-all duration-300 ${
                   darkMode
-                    ? "bg-gray-800/80 text-blue-400 border border-blue-500/20"
-                    : "bg-white/80 text-blue-700 border border-blue-200"
+                    ? "bg-gradient-to-r from-gray-800/90 to-gray-700/90 text-purple-400 border border-purple-500/30"
+                    : "bg-gradient-to-r from-white/90 to-gray-50/90 text-purple-700 border border-purple-200"
                 }`}
               >
-                🎨 UI/UX Engineer
-              </span>
+                <span className="mr-2">🚀</span>
+                Fast Delivery
+              </div>
             </div>
 
-            <h1
-              className={`text-5xl sm:text-6xl lg:text-7xl font-bold mb-8 leading-tight ${
-                darkMode ? "text-white" : "text-gray-900"
-              }`}
-            >
-              Crafting{" "}
-              <span className="bg-gradient-to-r from-cyan-500 via-blue-500 to-teal-500 bg-clip-text text-transparent animate-gradient">
-                Digital Excellence
-              </span>
-              <br />
-              with Modern Tech
-            </h1>
-
-            <p
-              className={`text-xl sm:text-2xl mb-12 max-w-4xl mx-auto leading-relaxed ${
-                darkMode ? "text-gray-300" : "text-gray-600"
-              }`}
-            >
-              I architect and develop{" "}
-              <strong>high-performance web applications</strong> that deliver
-              exceptional user experiences. From{" "}
-              <em>pixel-perfect frontends</em> to{" "}
-              <em>scalable backend systems</em> — bringing your vision to life
-              with cutting-edge technology.
-            </p>
-
-            <div className="flex flex-col sm:flex-row gap-6 justify-center mb-16">
-              <button
-                onClick={() => scrollToSection("projects")}
-                className="group bg-gradient-to-r from-cyan-500 to-teal-500 text-white px-8 py-4 rounded-2xl font-semibold text-lg shadow-xl hover:shadow-2xl transform hover:-translate-y-2 hover:scale-105 transition-all duration-500 relative overflow-hidden"
-              >
-                <span className="relative z-10 flex items-center justify-center gap-2">
-                  Explore My Work
-                  <ArrowRight
-                    size={20}
-                    className="group-hover:translate-x-1 transition-transform duration-300"
-                  />
-                </span>
-                <div className="absolute inset-0 bg-gradient-to-r from-teal-500 to-cyan-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              </button>
-              <button
-                onClick={() => scrollToSection("contact")}
-                className={`group px-8 py-4 rounded-2xl font-semibold text-lg border-2 transition-all duration-500 hover:shadow-xl transform hover:-translate-y-2 hover:scale-105 ${
-                  darkMode
-                    ? "border-gray-600 text-gray-300 hover:bg-gray-800 hover:border-cyan-500"
-                    : "border-gray-300 text-gray-700 hover:bg-white hover:border-cyan-500"
+            {/* Enhanced Main Heading - More Compact */}
+            <div className="space-y-4">
+              <h1
+                className={`text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight ${
+                  darkMode ? "text-white" : "text-gray-900"
                 }`}
               >
-                <span className="flex items-center justify-center gap-2">
-                  Let's Work Together
-                  <Mail
-                    size={20}
-                    className="group-hover:rotate-12 transition-transform duration-300"
-                  />
-                </span>
-              </button>
-            </div>
-
-            {/* Enhanced Tech Stack */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 max-w-4xl mx-auto">
-              {[
-                { name: "TypeScript", color: "from-blue-400 to-blue-600" },
-                { name: "React", color: "from-cyan-400 to-cyan-600" },
-                { name: "Next.js", color: "from-gray-700 to-gray-900" },
-                { name: "Node.js", color: "from-green-400 to-green-600" },
-                { name: "PostgreSQL", color: "from-blue-500 to-indigo-600" },
-                { name: "AWS", color: "from-orange-400 to-orange-600" },
-              ].map((tech, index) => (
-                <div
-                  key={tech.name}
-                  className={`group p-4 rounded-xl transition-all duration-500 hover:scale-110 cursor-pointer ${
-                    darkMode
-                      ? "bg-gray-800/60 hover:bg-gray-700/80"
-                      : "bg-white/60 hover:bg-white/80"
-                  } backdrop-blur-sm shadow-lg hover:shadow-xl`}
-                  style={{ animationDelay: `${index * 100}ms` }}
-                >
-                  <div
-                    className={`w-full h-2 bg-gradient-to-r ${tech.color} rounded-full mb-2 transform group-hover:scale-105 transition-transform duration-300`}
-                  ></div>
-                  <span
-                    className={`text-sm font-medium ${
-                      darkMode ? "text-gray-300" : "text-gray-700"
-                    }`}
-                  >
-                    {tech.name}
+                <div className="mb-3">
+                  <span className="block mb-2">I'm a</span>
+                  <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-teal-400 bg-clip-text text-transparent min-h-[1.2em] inline-block">
+                    {typewriterText}
+                    <span className="animate-pulse text-cyan-500">|</span>
                   </span>
                 </div>
+                <div className="mt-4">
+                  <span className="bg-gradient-to-r from-slate-600 via-gray-700 to-slate-800 bg-clip-text text-transparent dark:from-slate-300 dark:via-gray-200 dark:to-slate-100">
+                    Building Digital
+                  </span>
+                  <br />
+                  <span className="bg-gradient-to-r from-cyan-500 via-blue-500 to-teal-500 bg-clip-text text-transparent">
+                    Experiences
+                  </span>
+                </div>
+              </h1>
+
+              <p
+                className={`text-lg sm:text-xl mb-8 max-w-3xl mx-auto leading-relaxed ${
+                  darkMode ? "text-gray-300" : "text-gray-600"
+                }`}
+              >
+                I craft{" "}
+                <strong className="text-cyan-500">high-performance</strong> web
+                applications that combine{" "}
+                <em className="text-teal-500">beautiful design</em> with{" "}
+                <em className="text-blue-500">robust functionality</em>. Turning
+                complex problems into elegant solutions.
+              </p>
+            </div>
+
+            {/* Enhanced Action Buttons - More Compact */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+              <button
+                onClick={() => scrollToSection("projects")}
+                className="group relative bg-gradient-to-r from-cyan-500 via-blue-500 to-teal-500 text-white px-8 py-3 rounded-xl font-semibold shadow-xl hover:shadow-cyan-500/25 transform hover:scale-105 transition-all duration-300 overflow-hidden"
+              >
+                <span className="relative z-10 flex items-center justify-center gap-2">
+                  <Zap className="w-5 h-5 group-hover:rotate-12 transition-transform duration-300" />
+                  View My Work
+                  <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform duration-300" />
+                </span>
+                <div className="absolute inset-0 bg-gradient-to-r from-teal-500 via-cyan-500 to-blue-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              </button>
+
+              <button
+                onClick={() => scrollToSection("contact")}
+                className={`group relative px-8 py-3 rounded-xl font-semibold border-2 transition-all duration-300 hover:scale-105 overflow-hidden ${
+                  darkMode
+                    ? "border-gray-600 text-gray-300 hover:bg-gray-800/50 hover:border-cyan-400 hover:text-cyan-400"
+                    : "border-gray-300 text-gray-700 hover:bg-white/50 hover:border-cyan-500 hover:text-cyan-600"
+                }`}
+              >
+                <span className="relative z-10 flex items-center justify-center gap-2">
+                  <Mail className="w-5 h-5 group-hover:rotate-12 transition-transform duration-300" />
+                  Let's Connect
+                </span>
+              </button>
+            </div>
+
+            {/* Enhanced Tech Stack - More Compact */}
+            <div className="space-y-6">
+              <h3
+                className={`text-xl font-bold ${
+                  darkMode ? "text-gray-200" : "text-gray-800"
+                }`}
+              >
+                Technologies I Master
+              </h3>
+
+              <div className="grid grid-cols-3 sm:grid-cols-6 gap-4 max-w-4xl mx-auto">
+                {techStack.map((tech, index) => (
+                  <div
+                    key={tech.name}
+                    className={`group relative p-4 rounded-xl transition-all duration-300 hover:scale-110 cursor-pointer transform hover:-translate-y-1 ${
+                      darkMode
+                        ? "bg-gray-800/60 hover:bg-gray-700/80 shadow-lg hover:shadow-xl"
+                        : "bg-white/60 hover:bg-white/90 shadow-lg hover:shadow-xl"
+                    } backdrop-blur-sm border border-gray-200/20 dark:border-gray-700/20`}
+                    style={{ animationDelay: `${index * 100}ms` }}
+                  >
+                    {/* Icon */}
+                    <div className="text-2xl mb-2 group-hover:scale-125 transition-transform duration-300 text-center">
+                      {tech.icon}
+                    </div>
+
+                    {/* Progress bar */}
+                    <div
+                      className={`w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full mb-2 overflow-hidden`}
+                    >
+                      <div
+                        className={`h-full bg-gradient-to-r ${tech.color} rounded-full transform group-hover:scale-105 transition-all duration-500`}
+                        style={{ width: `${tech.level}%` }}
+                      ></div>
+                    </div>
+
+                    {/* Name and percentage */}
+                    <div className="space-y-1">
+                      <span
+                        className={`text-xs font-medium block text-center ${
+                          darkMode ? "text-gray-200" : "text-gray-800"
+                        }`}
+                      >
+                        {tech.name}
+                      </span>
+                      <span
+                        className={`text-xs text-center block ${
+                          darkMode ? "text-gray-400" : "text-gray-600"
+                        }`}
+                      >
+                        {tech.level}%
+                      </span>
+                    </div>
+
+                    {/* Hover effect overlay */}
+                    <div
+                      className={`absolute inset-0 bg-gradient-to-r ${tech.color} opacity-0 group-hover:opacity-10 rounded-xl transition-opacity duration-300`}
+                    ></div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            {/* Social Links */}
+            <div className="flex justify-center space-x-4 pt-6">
+              {[
+                {
+                  icon: Github,
+                  label: "GitHub",
+                  color: "hover:text-gray-800 dark:hover:text-gray-200",
+                  link: "https://github.com/ahmed12g4",
+                },
+                {
+                  icon: Linkedin,
+                  label: "LinkedIn",
+                  color: "hover:text-blue-600",
+                  link: "https://www.linkedin.com/in/ahmed-seleem-6337b4333/",
+                },
+                {
+                  icon: Twitter,
+                  label: "Twitter",
+                  color: "hover:text-blue-400",
+                  link: "https://twitter.com", // تقدر تحط حسابك هنا لو عندك
+                },
+              ].map((social, index) => (
+                <a
+                  key={social.label}
+                  href={social.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`p-3 rounded-full transition-all duration-300 hover:scale-125 hover:-translate-y-1 ${
+                    darkMode
+                      ? "bg-gray-800/60 text-gray-400 hover:bg-gray-700/80"
+                      : "bg-white/60 text-gray-600 hover:bg-white/80"
+                  } ${social.color} shadow-lg hover:shadow-xl backdrop-blur-sm`}
+                  style={{ animationDelay: `${index * 100}ms` }}
+                  aria-label={social.label}
+                >
+                  <social.icon size={20} />
+                </a>
               ))}
             </div>
           </div>
         </div>
+
+        {/* Background Animation Elements */}
+        <div className="absolute top-1/4 left-10 w-20 h-20 bg-cyan-500/5 rounded-full blur-xl animate-pulse"></div>
+        <div className="absolute bottom-1/4 right-10 w-32 h-32 bg-blue-500/5 rounded-full blur-xl animate-pulse delay-700"></div>
+        <div className="absolute top-1/2 left-1/4 w-16 h-16 bg-purple-500/5 rounded-full blur-xl animate-pulse delay-1000"></div>
       </section>
+
+      {/* كلمات التايب رايتر الجديدة - استبدل في useEffect بتاعك */}
+      {/*
+const words = [
+  "Full-Stack Developer",
+  "Frontend Specialist", 
+  "Backend Engineer",
+  "React.js Expert",
+  "Node.js Developer",
+  "UI/UX Designer",
+  "Mobile App Developer",
+  "DevOps Engineer",
+  "Database Designer",
+  "API Architect",
+  "Web Performance Expert",
+  "Code Optimizer",
+  "Problem Solver",
+  
+  "JavaScript Developer",
+  "TypeScript Expert",
+  "Vue.js Developer",
+  "Next.js Specialist"
+];
+*/}
 
       {/* About Section */}
       <section
@@ -2215,12 +2701,273 @@ const Portfolio = () => {
           backdrop-filter: blur(8px);
         }
 
-        .backdrop-blur-md {
-          backdrop-filter: blur(12px);
-        }
-
         .backdrop-blur-xl {
           backdrop-filter: blur(24px);
+        }
+
+        /* تحسين الأداء للموبايل */
+        @media (max-width: 768px) {
+          .animate-pulse {
+            animation-duration: 3s !important;
+          }
+
+          .animate-bounce {
+            animation-duration: 2s !important;
+          }
+
+          .group:hover .group-hover\\:scale-110 {
+            transform: scale(1.05) !important;
+          }
+
+          .group:hover .group-hover\\:scale-125 {
+            transform: scale(1.08) !important;
+          }
+
+          .blur-3xl {
+            filter: blur(40px) !important;
+          }
+
+          .blur-xl {
+            filter: blur(16px) !important;
+          }
+        }
+
+        * {
+          -webkit-transform: translateZ(0);
+          transform: translateZ(0);
+        }
+
+        .group {
+          will-change: transform;
+        }
+
+        /* Professional powerful animations */
+        @keyframes mesh-flow {
+          0%,
+          100% {
+            transform: translateX(0) translateY(0) scale(1) rotate(0deg);
+            opacity: 0.5;
+          }
+          25% {
+            transform: translateX(-30px) translateY(20px) scale(1.1)
+              rotate(2deg);
+            opacity: 0.7;
+          }
+          50% {
+            transform: translateX(20px) translateY(-30px) scale(0.9)
+              rotate(-1deg);
+            opacity: 0.4;
+          }
+          75% {
+            transform: translateX(40px) translateY(25px) scale(1.05)
+              rotate(3deg);
+            opacity: 0.6;
+          }
+        }
+
+        @keyframes power-float {
+          0%,
+          100% {
+            transform: translate(0, 0) scale(1) rotate(0deg);
+            opacity: 0.3;
+          }
+          25% {
+            transform: translate(60px, -40px) scale(1.2) rotate(10deg);
+            opacity: 0.5;
+          }
+          50% {
+            transform: translate(-40px, 80px) scale(0.8) rotate(-15deg);
+            opacity: 0.2;
+          }
+          75% {
+            transform: translate(80px, 60px) scale(1.1) rotate(20deg);
+            opacity: 0.4;
+          }
+        }
+
+        @keyframes power-drift {
+          0%,
+          100% {
+            transform: translate(0, 0) scale(1) rotate(0deg);
+            opacity: 0.35;
+          }
+          33% {
+            transform: translate(-80px, -60px) scale(1.3) rotate(-12deg);
+            opacity: 0.5;
+          }
+          66% {
+            transform: translate(60px, -80px) scale(0.9) rotate(18deg);
+            opacity: 0.25;
+          }
+        }
+
+        @keyframes power-pulse {
+          0%,
+          100% {
+            transform: scale(1) rotate(0deg);
+            opacity: 0.4;
+          }
+          50% {
+            transform: scale(1.4) rotate(10deg);
+            opacity: 0.2;
+          }
+        }
+
+        @keyframes power-particles {
+          0% {
+            transform: translateY(100vh) scale(0) rotate(0deg);
+            opacity: 0;
+          }
+          10% {
+            opacity: 0.7;
+            transform: scale(1);
+          }
+          90% {
+            opacity: 0.7;
+          }
+          100% {
+            transform: translateY(-100vh) scale(1.5) rotate(360deg);
+            opacity: 0;
+          }
+        }
+
+        @keyframes tech-grid {
+          0% {
+            transform: translate(0, 0) scale(1);
+            opacity: 0.15;
+          }
+          50% {
+            opacity: 0.25;
+            transform: scale(1.02);
+          }
+          100% {
+            transform: translate(50px, 50px) scale(1);
+            opacity: 0.15;
+          }
+        }
+
+        @keyframes wave-power {
+          0%,
+          100% {
+            transform: translateX(-100%) skewX(0deg);
+            opacity: 0;
+          }
+          50% {
+            transform: translateX(0%) skewX(-5deg);
+            opacity: 0.15;
+          }
+          100% {
+            transform: translateX(100%) skewX(0deg);
+            opacity: 0;
+          }
+        }
+
+        @keyframes wave-power-reverse {
+          0%,
+          100% {
+            transform: translateX(100%) skewX(0deg);
+            opacity: 0;
+          }
+          50% {
+            transform: translateX(0%) skewX(5deg);
+            opacity: 0.15;
+          }
+          100% {
+            transform: translateX(-100%) skewX(0deg);
+            opacity: 0;
+          }
+        }
+
+        @keyframes geo-rotate {
+          0% {
+            transform: rotate(0deg) scale(1);
+          }
+          50% {
+            transform: rotate(180deg) scale(1.1);
+          }
+          100% {
+            transform: rotate(360deg) scale(1);
+          }
+        }
+
+        @keyframes geo-float {
+          0%,
+          100% {
+            transform: translateY(0) scale(1);
+            opacity: 0.3;
+          }
+          50% {
+            transform: translateY(-20px) scale(1.2);
+            opacity: 0.5;
+          }
+        }
+
+        @keyframes geo-pulse {
+          0%,
+          100% {
+            transform: scale(1);
+            opacity: 0.4;
+          }
+          50% {
+            transform: scale(1.3);
+            opacity: 0.6;
+          }
+        }
+
+        @keyframes ambient-light {
+          0%,
+          100% {
+            opacity: 0.25;
+            transform: rotate(0deg) scale(1);
+          }
+          50% {
+            opacity: 0.35;
+            transform: rotate(5deg) scale(1.05);
+          }
+        }
+
+        .animate-mesh-flow {
+          animation: mesh-flow 10s ease-in-out infinite;
+        }
+
+        .animate-power-float {
+          animation: power-float 14s ease-in-out infinite;
+        }
+
+        .animate-power-drift {
+          animation: power-drift 16s ease-in-out infinite;
+        }
+
+        .animate-power-pulse {
+          animation: power-pulse 12s ease-in-out infinite;
+        }
+
+        .animate-power-particles {
+          animation: power-particles linear infinite;
+        }
+
+        .animate-wave-power {
+          animation: wave-power 8s ease-in-out infinite;
+        }
+
+        .animate-wave-power-reverse {
+          animation: wave-power-reverse 10s ease-in-out infinite;
+        }
+
+        .animate-geo-rotate {
+          animation: geo-rotate 25s linear infinite;
+        }
+
+        .animate-geo-float {
+          animation: geo-float 6s ease-in-out infinite;
+        }
+
+        .animate-geo-pulse {
+          animation: geo-pulse 4s ease-in-out infinite;
+        }
+
+        .animate-ambient-light {
+          animation: ambient-light 15s ease-in-out infinite;
         }
       `}</style>
     </div>
