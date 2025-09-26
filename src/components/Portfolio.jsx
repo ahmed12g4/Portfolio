@@ -38,6 +38,7 @@ const Portfolio = () => {
   const [scrollY, setScrollY] = useState(0);
   const [typewriterText, setTypewriterText] = useState("");
   const [currentRole, setCurrentRole] = useState(0);
+  
 
   const [isMobile, setIsMobile] = useState(false);
 
@@ -2968,6 +2969,169 @@ const words = [
 
         .animate-ambient-light {
           animation: ambient-light 15s ease-in-out infinite;
+        }
+        /* Enhanced performance optimizations for mobile */
+        @media (max-width: 768px) {
+          /* Disable expensive animations on mobile */
+          .animate-mesh-flow,
+          .animate-power-float,
+          .animate-power-drift,
+          .animate-power-pulse,
+          .animate-power-particles,
+          .animate-wave-power,
+          .animate-wave-power-reverse,
+          .animate-geo-rotate,
+          .animate-geo-float,
+          .animate-geo-pulse,
+          .animate-ambient-light {
+            animation: none !important;
+          }
+
+          /* Simplify hover effects for mobile */
+          .group:hover .group-hover\\:scale-110 {
+            transform: scale(1.02) !important;
+          }
+
+          .group:hover .group-hover\\:scale-125 {
+            transform: scale(1.05) !important;
+          }
+
+          .hover\\:scale-105:hover {
+            transform: scale(1.02) !important;
+          }
+
+          .hover\\:scale-110:hover {
+            transform: scale(1.05) !important;
+          }
+
+          /* Reduce blur effects */
+          .blur-3xl {
+            filter: blur(20px) !important;
+          }
+
+          .blur-xl {
+            filter: blur(10px) !important;
+          }
+
+          .blur-lg {
+            filter: blur(8px) !important;
+          }
+
+          /* Simplify backdrop blur */
+          .backdrop-blur-xl {
+            backdrop-filter: blur(8px) !important;
+          }
+
+          .backdrop-blur-2xl {
+            backdrop-filter: blur(12px) !important;
+          }
+
+          /* Disable transform3d for some elements */
+          .transform {
+            transform: none !important;
+          }
+
+          /* Optimize transitions */
+          .transition-all {
+            transition: opacity 0.2s ease !important;
+          }
+
+          /* Reduce animation durations */
+          .animate-pulse {
+            animation-duration: 3s !important;
+          }
+
+          .animate-bounce {
+            animation-duration: 2s !important;
+          }
+
+          /* Simplify gradients on mobile */
+          .bg-gradient-to-br,
+          .bg-gradient-to-r,
+          .bg-gradient-to-l,
+          .bg-gradient-to-t {
+            background-image: none !important;
+            background-color: currentColor !important;
+          }
+
+          /* Disable will-change on mobile to save memory */
+          * {
+            will-change: auto !important;
+          }
+
+          /* Use GPU acceleration sparingly */
+          .group,
+          .hover\\:scale-105,
+          .hover\\:scale-110,
+          nav,
+          .fixed {
+            will-change: transform;
+            transform: translateZ(0);
+          }
+
+          /* Optimize scrolling */
+          body {
+            -webkit-overflow-scrolling: touch;
+            scroll-behavior: auto;
+          }
+
+          /* Reduce shadows on mobile */
+          .shadow-xl {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+          }
+
+          .shadow-2xl {
+            box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.15) !important;
+          }
+
+          /* Simplify borders */
+          .border-2 {
+            border-width: 1px !important;
+          }
+
+          /* Reduce opacity animations */
+          .opacity-70 {
+            opacity: 0.5 !important;
+          }
+
+          .opacity-60 {
+            opacity: 0.4 !important;
+          }
+
+          /* Disable complex pseudo-elements */
+          .before\\:absolute::before,
+          .after\\:absolute::after {
+            display: none !important;
+          }
+        }
+
+        /* Optimize for low-end devices */
+        @media (max-width: 768px) and (max-resolution: 192dpi) {
+          .blur-xl {
+            filter: none !important;
+          }
+
+          .backdrop-blur-sm,
+          .backdrop-blur-xl,
+          .backdrop-blur-2xl {
+            backdrop-filter: none !important;
+          }
+
+          .animate-pulse,
+          .animate-bounce {
+            animation: none !important;
+          }
+        }
+
+        /* Prefers reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+          *,
+          *::before,
+          *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+          }
         }
       `}</style>
     </div>
