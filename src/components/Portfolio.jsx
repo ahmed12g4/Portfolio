@@ -3337,6 +3337,310 @@ const words = [
             transform: rotate(5deg) scale(1.03);
           }
         }
+
+        /* تحسين الأداء العام */
+        * {
+          -webkit-transform: translateZ(0);
+          transform: translateZ(0);
+          backface-visibility: hidden;
+          -webkit-backface-visibility: hidden;
+        }
+
+        /* تحسين محرك الرسم للعناصر المتحركة */
+        .group,
+        .animate-pulse,
+        .animate-bounce,
+        [class*="animate-"],
+        [class*="transition-"],
+        [class*="hover:"] {
+          will-change: transform;
+          -webkit-transform: translateZ(0);
+          transform: translateZ(0);
+        }
+
+        /* تحسينات قوية للموبايل */
+        @media (max-width: 768px) {
+          /* إيقاف الانيميشن المعقدة */
+          .animate-pulse {
+            animation-duration: 3s !important;
+            animation-timing-function: ease-in-out !important;
+          }
+
+          .animate-bounce {
+            animation: none !important;
+          }
+
+          /* تقليل الscale للـ hover effects */
+          .group:hover .group-hover\\:scale-110 {
+            transform: scale(1.02) !important;
+            transition-duration: 150ms !important;
+          }
+
+          .group:hover .group-hover\\:scale-125 {
+            transform: scale(1.03) !important;
+            transition-duration: 150ms !important;
+          }
+
+          .hover\\:scale-105:hover {
+            transform: scale(1.01) !important;
+            transition-duration: 150ms !important;
+          }
+
+          /* تقليل الـ blur effects */
+          .blur-3xl {
+            filter: blur(8px) !important;
+          }
+
+          .blur-xl {
+            filter: blur(4px) !important;
+          }
+
+          .backdrop-blur-sm {
+            backdrop-filter: blur(2px) !important;
+          }
+
+          .backdrop-blur-xl {
+            backdrop-filter: blur(4px) !important;
+          }
+
+          /* تحسين الظلال */
+          .shadow-2xl {
+            box-shadow: 0 4px 15px -2px rgba(0, 0, 0, 0.1) !important;
+          }
+
+          .shadow-xl {
+            box-shadow: 0 2px 10px -1px rgba(0, 0, 0, 0.1) !important;
+          }
+
+          /* تسريع التحولات */
+          .transition-all {
+            transition-duration: 150ms !important;
+            transition-timing-function: ease-out !important;
+          }
+
+          .transition-transform {
+            transition-duration: 150ms !important;
+          }
+
+          .transition-colors {
+            transition-duration: 100ms !important;
+          }
+
+          /* إلغاء الانيميشن المعقدة */
+          .animate-power-float,
+          .animate-power-drift,
+          .animate-power-pulse,
+          .animate-wave-power,
+          .animate-wave-power-reverse,
+          .animate-geo-rotate,
+          .animate-geo-float,
+          .animate-geo-pulse,
+          .animate-ambient-light,
+          .animate-mesh-flow {
+            animation: none !important;
+          }
+
+          /* تبسيط الـ gradients للموبايل */
+          [class*="bg-gradient-to-"] {
+            background-attachment: scroll !important;
+          }
+
+          /* تحسين الـ transforms */
+          .hover\\:-translate-y-1:hover {
+            transform: translateY(-2px) !important;
+          }
+
+          .hover\\:-translate-y-2:hover {
+            transform: translateY(-1px) !important;
+          }
+
+          /* تقليل opacity للعناصر الخلفية */
+          [class*="opacity-"] {
+            opacity: 0.3 !important;
+          }
+
+          .opacity-100 {
+            opacity: 1 !important;
+          }
+
+          .opacity-0 {
+            opacity: 0 !important;
+          }
+
+          /* تحسين الـ positioning للعناصر المطلقة */
+          .absolute {
+            -webkit-transform: translateZ(0);
+            transform: translateZ(0);
+          }
+        }
+
+        /* تحسين الاسكرول */
+        html {
+          scroll-behavior: smooth;
+          -webkit-overflow-scrolling: touch;
+        }
+
+        body {
+          overscroll-behavior: contain;
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* تحسين الـ scrollbar للموبايل */
+        @media (max-width: 768px) {
+          ::-webkit-scrollbar {
+            width: 4px !important;
+          }
+
+          ::-webkit-scrollbar-track {
+            background: transparent !important;
+          }
+
+          ::-webkit-scrollbar-thumb {
+            background: rgba(6, 182, 212, 0.5) !important;
+            border-radius: 2px !important;
+          }
+        }
+
+        /* تحسين الانيميشن المبسطة للموبايل */
+        @media (max-width: 768px) {
+          @keyframes mobile-pulse-simple {
+            0%,
+            100% {
+              opacity: 0.5;
+            }
+            50% {
+              opacity: 0.8;
+            }
+          }
+
+          @keyframes mobile-float-simple {
+            0%,
+            100% {
+              transform: translateY(0);
+            }
+            50% {
+              transform: translateY(-5px);
+            }
+          }
+
+          .animate-pulse {
+            animation: mobile-pulse-simple 2s ease-in-out infinite !important;
+          }
+        }
+
+        /* تحسين الأداء للعناصر المتحركة */
+        .transform {
+          -webkit-transform: translateZ(0);
+          transform: translateZ(0);
+        }
+
+        /* تحسين GPU acceleration */
+        .group:hover,
+        .hover\\:scale-105:hover,
+        .hover\\:scale-110:hover {
+          -webkit-transform: translateZ(0);
+          transform: translateZ(0);
+          will-change: transform;
+        }
+
+        /* تحسين محرك الرسم للخلفيات المتحركة */
+        [class*="bg-gradient-"] {
+          -webkit-transform: translateZ(0);
+          transform: translateZ(0);
+          will-change: auto;
+        }
+
+        /* إزالة الانيميشن غير الضرورية للموبايل */
+        @media (max-width: 768px) and (prefers-reduced-motion: no-preference) {
+          /* إبقاء الانيميشن البسيطة فقط */
+          .animate-spin {
+            animation-duration: 2s !important;
+          }
+        }
+
+        /* للأجهزة الضعيفة */
+        @media (max-width: 768px) {
+          /* تقليل complexity للـ box-shadows */
+          [class*="shadow-"] {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+          }
+
+          /* تحسين الـ border-radius */
+          .rounded-3xl {
+            border-radius: 1rem !important;
+          }
+
+          .rounded-2xl {
+            border-radius: 0.75rem !important;
+          }
+
+          /* تقليل الـ blur للخلفيات */
+          [class*="backdrop-blur"] {
+            backdrop-filter: none !important;
+            background-color: rgba(0, 0, 0, 0.05) !important;
+          }
+
+          .dark [class*="backdrop-blur"] {
+            background-color: rgba(255, 255, 255, 0.05) !important;
+          }
+        }
+
+        /* تحسين أداء النصوص */
+        @media (max-width: 768px) {
+          .text-4xl {
+            font-size: 2rem !important;
+          }
+          .text-5xl {
+            font-size: 2.25rem !important;
+          }
+          .text-6xl {
+            font-size: 2.5rem !important;
+          }
+        }
+
+        /* تحسين الـ intersection observer */
+        [class*="translate-y-20"] {
+          transition: transform 300ms ease-out, opacity 300ms ease-out !important;
+        }
+
+        /* تحسين الـ typewriter effect للموبايل */
+        @media (max-width: 768px) {
+          .animate-pulse {
+            animation-delay: 0s !important;
+          }
+        }
+
+        /* تحسين الـ geometric shapes للموبايل */
+        @media (max-width: 768px) {
+          [style*="clip-path"] {
+            clip-path: none !important;
+            border-radius: 50% !important;
+          }
+
+          [style*="filter: blur"] {
+            filter: blur(8px) !important;
+          }
+        }
+
+        /* Performance boost للمعالجات الضعيفة */
+        @media (max-width: 768px) and (max-resolution: 150dpi) {
+          * {
+            text-rendering: optimizeSpeed !important;
+          }
+
+          img {
+            image-rendering: optimizeSpeed !important;
+          }
+
+          [class*="transition-"] {
+            transition-duration: 0ms !important;
+          }
+
+          [class*="animate-"] {
+            animation: none !important;
+          }
+        }
       `}</style>
     </div>
   );
