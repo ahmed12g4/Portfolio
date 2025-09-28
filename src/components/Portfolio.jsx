@@ -3641,6 +3641,29 @@ const words = [
             animation: none !important;
           }
         }
+
+        /* تسريع قسم البروجكتس خصوصاً */
+        #projects .grid > div {
+          transition: all 200ms ease-out !important;
+        }
+
+        @media (max-width: 768px) {
+          #projects .grid > div {
+            transition: all 150ms ease-out !important;
+            animation-delay: 0ms !important;
+          }
+
+          /* إظهار فورى للموبايل */
+          #projects .translate-y-20 {
+            transform: translateY(0) !important;
+            opacity: 1 !important;
+          }
+        }
+
+        /* تقليل الـ animation delay للعناصر */
+        .transform.transition-all {
+          transition-delay: 0ms !important;
+        }
       `}</style>
     </div>
   );
