@@ -52,16 +52,7 @@ useEffect(() => {
     setReducedMotion(mobile || window.navigator.hardwareConcurrency < 4);
   };
   checkMobile();
-  window.addEventListener('resize', checkMobile);
-  return () => window.removeEventListener('resize', checkMobile);
-}, []);
-
-useEffect(() => {
-  const checkMobile = () => {
-    setIsMobile(window.innerWidth < 768);
-  };
-  checkMobile();
-  window.addEventListener('resize', checkMobile);
+  window.addEventListener('resize', checkMobile, { passive: true });
   return () => window.removeEventListener('resize', checkMobile);
 }, []);
 
@@ -106,12 +97,24 @@ useEffect(() => {
     return () => clearTimeout(timeout);
   }, [typewriterText, currentRole]);
 
-  // Scroll effect
+ // Scroll effect - محسن للموبايل
   useEffect(() => {
-    const handleScroll = () => setScrollY(window.scrollY);
-    window.addEventListener("scroll", handleScroll);
+    if (isMobile) return; // إيقاف scroll effect للموبايل
+    
+    let ticking = false;
+    const handleScroll = () => {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          setScrollY(window.scrollY);
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+    
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [isMobile]);
   const toggleDarkMode = () => setDarkMode(!darkMode);
   const toggleMobileMenu = () => setMobileMenuOpen(!mobileMenuOpen);
 
@@ -245,6 +248,7 @@ useEffect(() => {
   const [visibleSections, setVisibleSections] = useState(new Set());
   const sectionRefs = useRef({});
 
+// Intersection Observer - محسن للموبايل
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -254,7 +258,10 @@ useEffect(() => {
           }
         });
       },
-      { threshold: 0.1 }
+      { 
+        threshold: isMobile ? 0.05 : 0.1, // threshold أقل للموبايل
+        rootMargin: isMobile ? "50px" : "100px" // margin أكبر للموبايل
+      }
     );
 
     Object.values(sectionRefs.current).forEach((ref) => {
@@ -262,7 +269,7 @@ useEffect(() => {
     });
 
     return () => observer.disconnect();
-  }, []);
+  }, [isMobile]);
 
   // Animated counter hook
   useEffect(() => {
@@ -643,195 +650,257 @@ useEffect(() => {
           : "bg-gradient-to-br from-slate-50 via-blue-50 to-cyan-50"
       }`}
     >
-      {/* Professional Dynamic Background */}
+      {/* Modern Geometric Background - Professional & Animated */}
       <div className="fixed inset-0 z-0 overflow-hidden">
-        {/* Clean base gradient */}
+        {/* Sophisticated base */}
         <div
           className={`absolute inset-0 transition-all duration-1000 ${
             darkMode
               ? "bg-gradient-to-br from-gray-900 via-slate-900 to-gray-800"
-              : "bg-gradient-to-br from-white via-gray-50 to-slate-100"
+              : "bg-gradient-to-br from-amber-50 via-orange-50 to-red-50"
           }`}
         ></div>
 
-        {/* Dynamic mesh gradient */}
+        {/* Warm gradient overlay */}
         <div className="absolute inset-0">
           <div
-            className={`absolute inset-0 opacity-50 animate-mesh-flow ${
+            className={`absolute inset-0 will-change-transform ${
               darkMode
-                ? "bg-gradient-to-r from-cyan-900/30 via-teal-800/40 to-blue-900/30"
-                : "bg-gradient-to-r from-cyan-200/40 via-teal-300/50 to-blue-200/40"
+                ? "bg-gradient-to-br from-orange-900/25 via-red-800/30 to-pink-900/20"
+                : "bg-gradient-to-br from-orange-100/35 via-red-100/40 to-pink-100/25"
             }`}
             style={{
-              background: darkMode
-                ? `radial-gradient(circle at 25% 25%, rgba(6, 182, 212, 0.25) 0%, transparent 50%),
-             radial-gradient(circle at 75% 75%, rgba(20, 184, 166, 0.3) 0%, transparent 50%),
-             radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.2) 0%, transparent 60%)`
-                : `radial-gradient(circle at 25% 25%, rgba(6, 182, 212, 0.3) 0%, transparent 50%),
-             radial-gradient(circle at 75% 75%, rgba(20, 184, 166, 0.35) 0%, transparent 50%),
-             radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.25) 0%, transparent 60%)`,
+              backgroundImage: darkMode
+                ? `radial-gradient(circle at 25% 25%, rgba(251, 146, 60, 0.2) 0%, transparent 55%),
+                   radial-gradient(circle at 75% 75%, rgba(239, 68, 68, 0.18) 0%, transparent 60%),
+                   radial-gradient(circle at 50% 10%, rgba(236, 72, 153, 0.15) 0%, transparent 65%)`
+                : `radial-gradient(circle at 25% 25%, rgba(251, 146, 60, 0.15) 0%, transparent 55%),
+                   radial-gradient(circle at 75% 75%, rgba(239, 68, 68, 0.12) 0%, transparent 60%),
+                   radial-gradient(circle at 50% 10%, rgba(236, 72, 153, 0.1) 0%, transparent 65%)`,
+              animation: "warm-flow 22s ease-in-out infinite",
+              transform: "translateZ(0)",
             }}
           ></div>
         </div>
 
-        {/* Powerful floating spheres للكمبيوتر فقط */}
-        {!isMobile && (
+        {/* Geometric shapes - animated */}
+        {!isMobile && !reducedMotion && (
           <>
-            {/* Main dynamic sphere */}
+            {/* Large hexagon */}
             <div
-              className={`absolute top-20 left-20 w-[400px] h-[400px] rounded-full animate-power-float ${
+              className={`absolute top-20 left-20 w-80 h-80 will-change-transform ${
                 darkMode
-                  ? "bg-gradient-to-br from-cyan-500/30 via-teal-600/40 to-cyan-700/25"
-                  : "bg-gradient-to-br from-cyan-400/35 via-teal-500/45 to-cyan-600/30"
+                  ? "bg-gradient-to-br from-orange-600/20 via-red-500/25 to-pink-600/15"
+                  : "bg-gradient-to-br from-orange-400/18 via-red-400/22 to-pink-400/12"
               }`}
               style={{
-                filter: "blur(70px)",
-                animation: "power-float 14s ease-in-out infinite",
+                clipPath:
+                  "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)",
+                filter: "blur(40px)",
+                animation: "geo-rotate 25s linear infinite",
+                transform: "translateZ(0)",
               }}
             ></div>
 
-            {/* Secondary dynamic sphere */}
+            {/* Diamond shape */}
             <div
-              className={`absolute bottom-20 right-20 w-[350px] h-[350px] rounded-full animate-power-drift ${
+              className={`absolute bottom-20 right-24 w-72 h-72 will-change-transform ${
                 darkMode
-                  ? "bg-gradient-to-tl from-teal-500/35 via-blue-600/30 to-teal-700/25"
-                  : "bg-gradient-to-tl from-teal-400/40 via-blue-500/35 to-teal-600/30"
+                  ? "bg-gradient-to-tl from-pink-600/18 via-rose-500/22 to-orange-600/12"
+                  : "bg-gradient-to-tl from-pink-400/15 via-rose-400/18 to-orange-400/10"
               }`}
               style={{
-                filter: "blur(60px)",
-                animation: "power-drift 16s ease-in-out infinite",
-                animationDelay: "2s",
+                clipPath: "polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)",
+                filter: "blur(45px)",
+                animation: "geo-float 20s ease-in-out infinite",
+                animationDelay: "3s",
+                transform: "translateZ(0)",
               }}
             ></div>
 
-            {/* Accent sphere */}
+            {/* Triangle */}
             <div
-              className={`absolute top-1/2 right-1/3 w-60 h-60 rounded-full animate-power-pulse ${
+              className={`absolute top-1/2 right-1/4 w-64 h-64 will-change-transform ${
                 darkMode
-                  ? "bg-gradient-to-r from-blue-500/40 via-cyan-600/35 to-teal-500/30"
-                  : "bg-gradient-to-r from-blue-400/45 via-cyan-500/40 to-teal-400/35"
+                  ? "bg-gradient-to-r from-red-600/16 via-orange-500/20 to-yellow-600/12"
+                  : "bg-gradient-to-r from-red-400/12 via-orange-400/16 to-yellow-400/8"
               }`}
               style={{
-                filter: "blur(50px)",
-                animation: "power-pulse 12s ease-in-out infinite",
-                animationDelay: "4s",
+                clipPath: "polygon(50% 0%, 0% 100%, 100% 100%)",
+                filter: "blur(35px)",
+                animation: "geo-pulse 18s ease-in-out infinite",
+                animationDelay: "6s",
+                transform: "translateZ(0)",
+              }}
+            ></div>
+
+            {/* Pentagon */}
+            <div
+              className={`absolute bottom-1/3 left-1/3 w-56 h-56 will-change-transform ${
+                darkMode
+                  ? "bg-gradient-to-br from-yellow-600/15 via-amber-500/18 to-orange-600/10"
+                  : "bg-gradient-to-br from-yellow-400/12 via-amber-400/15 to-orange-400/8"
+              }`}
+              style={{
+                clipPath:
+                  "polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%)",
+                filter: "blur(38px)",
+                animation: "geo-spin 30s ease-in-out infinite",
+                animationDelay: "9s",
+                transform: "translateZ(0)",
               }}
             ></div>
           </>
         )}
 
-        {/* Advanced particle system */}
-        <div className="absolute inset-0">
-          {[...Array(isMobile ? 12 : 35)].map((_, i) => (
+        {/* Mobile geometric version */}
+        {isMobile && (
+          <div className="absolute inset-0">
             <div
-              key={i}
-              className={`absolute rounded-full animate-power-particles opacity-70 ${
-                darkMode
-                  ? i % 4 === 0
-                    ? "bg-cyan-400 shadow-lg shadow-cyan-400/30"
-                    : i % 4 === 1
-                    ? "bg-teal-400 shadow-lg shadow-teal-400/30"
-                    : i % 4 === 2
-                    ? "bg-blue-400 shadow-lg shadow-blue-400/30"
-                    : "bg-slate-300 shadow-lg shadow-slate-300/30"
-                  : i % 4 === 0
-                  ? "bg-cyan-500 shadow-lg shadow-cyan-500/40"
-                  : i % 4 === 1
-                  ? "bg-teal-500 shadow-lg shadow-teal-500/40"
-                  : i % 4 === 2
-                  ? "bg-blue-500 shadow-lg shadow-blue-500/40"
-                  : "bg-slate-400 shadow-lg shadow-slate-400/40"
+              className={`absolute top-16 right-12 w-32 h-32 ${
+                darkMode ? "bg-orange-500/12" : "bg-orange-400/10"
               }`}
               style={{
-                width: `${Math.random() * 10 + 3}px`,
-                height: `${Math.random() * 10 + 3}px`,
+                clipPath: "polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)",
+                filter: "blur(20px)",
+                animation: "mobile-geo-1 15s ease-in-out infinite",
+              }}
+            ></div>
+            <div
+              className={`absolute bottom-24 left-12 w-28 h-28 ${
+                darkMode ? "bg-pink-500/10" : "bg-pink-400/8"
+              }`}
+              style={{
+                clipPath: "polygon(50% 0%, 0% 100%, 100% 100%)",
+                filter: "blur(18px)",
+                animation: "mobile-geo-2 18s ease-in-out infinite",
+                animationDelay: "3s",
+              }}
+            ></div>
+          </div>
+        )}
+
+        {/* Floating geometric particles */}
+        <div className="absolute inset-0">
+          {[...Array(isMobile ? 8 : 24)].map((_, i) => (
+            <div
+              key={i}
+              className={`absolute will-change-transform ${
+                reducedMotion ? "animate-none opacity-20" : "opacity-40"
+              } ${
+                darkMode
+                  ? i % 4 === 0
+                    ? "bg-orange-400"
+                    : i % 4 === 1
+                    ? "bg-red-400"
+                    : i % 4 === 2
+                    ? "bg-pink-400"
+                    : "bg-yellow-400"
+                  : i % 4 === 0
+                  ? "bg-orange-500"
+                  : i % 4 === 1
+                  ? "bg-red-500"
+                  : i % 4 === 2
+                  ? "bg-pink-500"
+                  : "bg-yellow-500"
+              }`}
+              style={{
+                width: `${Math.random() * (isMobile ? 4 : 6) + 2}px`,
+                height: `${Math.random() * (isMobile ? 4 : 6) + 2}px`,
+                clipPath:
+                  i % 3 === 0
+                    ? "polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)"
+                    : i % 3 === 1
+                    ? "polygon(50% 0%, 0% 100%, 100% 100%)"
+                    : "none",
+                borderRadius: i % 3 === 2 ? "50%" : "0",
                 left: `${Math.random() * 100}%`,
                 top: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 8}s`,
-                animationDuration: `${6 + Math.random() * 8}s`,
+                animation: reducedMotion
+                  ? "none"
+                  : `geo-particles ${12 + Math.random() * 8}s linear infinite`,
+                animationDelay: `${Math.random() * 15}s`,
+                transform: "translateZ(0)",
               }}
             ></div>
           ))}
         </div>
 
-        {/* Tech grid pattern */}
-        <div
-          className={`absolute inset-0 opacity-15 ${
-            darkMode ? "opacity-10" : ""
-          }`}
-          style={{
-            backgroundImage: `
-        linear-gradient(${
-          darkMode ? "rgba(6, 182, 212, 0.2)" : "rgba(6, 182, 212, 0.25)"
-        } 1.5px, transparent 1.5px),
-        linear-gradient(90deg, ${
-          darkMode ? "rgba(6, 182, 212, 0.2)" : "rgba(6, 182, 212, 0.25)"
-        } 1.5px, transparent 1.5px)
-      `,
-            backgroundSize: "50px 50px",
-            animation: "tech-grid 12s linear infinite",
-          }}
-        ></div>
-
-        {/* Dynamic wave effects */}
+        {/* Geometric grid pattern */}
         {!isMobile && (
-          <div className="absolute inset-0">
-            <div
-              className={`absolute inset-0 animate-wave-power ${
-                darkMode
-                  ? "bg-gradient-to-r from-transparent via-cyan-800/15 to-transparent"
-                  : "bg-gradient-to-r from-transparent via-cyan-300/20 to-transparent"
-              }`}
-            ></div>
-
-            <div
-              className={`absolute inset-0 animate-wave-power-reverse ${
-                darkMode
-                  ? "bg-gradient-to-l from-transparent via-teal-800/15 to-transparent"
-                  : "bg-gradient-to-l from-transparent via-teal-300/20 to-transparent"
-              }`}
-              style={{ animationDelay: "3s" }}
-            ></div>
-          </div>
+          <div
+            className={`absolute inset-0 opacity-8 ${
+              darkMode ? "opacity-5" : ""
+            }`}
+            style={{
+              backgroundImage: `
+                linear-gradient(${
+                  darkMode
+                    ? "rgba(251, 146, 60, 0.08)"
+                    : "rgba(251, 146, 60, 0.12)"
+                } 1px, transparent 1px),
+                linear-gradient(90deg, ${
+                  darkMode
+                    ? "rgba(239, 68, 68, 0.08)"
+                    : "rgba(239, 68, 68, 0.12)"
+                } 1px, transparent 1px)
+              `,
+              backgroundSize: "150px 150px",
+              animation: reducedMotion
+                ? "none"
+                : "geo-grid 40s linear infinite",
+              transform: "translateZ(0) rotate(15deg)",
+            }}
+          ></div>
         )}
 
-        {/* Professional geometric elements */}
-        {!isMobile && (
-          <div className="absolute inset-0 opacity-20">
-            <div className="absolute top-1/3 left-1/4 w-32 h-32 animate-geo-rotate">
+        {/* Diagonal waves */}
+        {!isMobile && !reducedMotion && (
+          <>
+            <div className="absolute inset-0">
               <div
-                className={`w-full h-full border-2 ${
-                  darkMode ? "border-cyan-400/40" : "border-cyan-500/50"
-                } rounded-lg transform rotate-45`}
+                className={`absolute inset-0 will-change-transform ${
+                  darkMode
+                    ? "bg-gradient-to-br from-transparent via-orange-800/8 to-transparent"
+                    : "bg-gradient-to-br from-transparent via-orange-300/12 to-transparent"
+                }`}
+                style={{
+                  animation: "diagonal-wave-1 14s ease-in-out infinite",
+                  transform: "translateZ(0) skewY(-5deg)",
+                }}
               ></div>
             </div>
-
-            <div className="absolute bottom-1/3 right-1/4 w-20 h-20 animate-geo-float">
+            <div className="absolute inset-0">
               <div
-                className={`w-full h-full ${
-                  darkMode ? "bg-teal-400/30" : "bg-teal-500/40"
-                } rounded-full`}
+                className={`absolute inset-0 will-change-transform ${
+                  darkMode
+                    ? "bg-gradient-to-tl from-transparent via-red-800/6 to-transparent"
+                    : "bg-gradient-to-tl from-transparent via-red-300/10 to-transparent"
+                }`}
+                style={{
+                  animation: "diagonal-wave-2 18s ease-in-out infinite",
+                  animationDelay: "3s",
+                  transform: "translateZ(0) skewY(3deg)",
+                }}
               ></div>
             </div>
-
-            <div className="absolute top-2/3 left-1/2 w-16 h-16 animate-geo-pulse">
-              <div
-                className={`w-0 h-0 border-l-8 border-r-8 border-b-16 ${
-                  darkMode ? "border-blue-400/40" : "border-blue-500/50"
-                } border-l-transparent border-r-transparent`}
-              ></div>
-            </div>
-          </div>
+          </>
         )}
 
-        {/* Ambient lighting effect */}
-        <div
-          className={`absolute inset-0 opacity-25 animate-ambient-light ${
-            darkMode
-              ? "bg-gradient-to-tr from-transparent via-slate-700/20 to-transparent"
-              : "bg-gradient-to-tr from-transparent via-slate-300/25 to-transparent"
-          }`}
-        ></div>
+        {/* Warm ambient glow */}
+        {!reducedMotion && (
+          <div
+            className={`absolute inset-0 will-change-transform ${
+              darkMode
+                ? "bg-gradient-to-tr from-transparent via-amber-900/5 to-transparent"
+                : "bg-gradient-to-tr from-transparent via-amber-200/8 to-transparent"
+            }`}
+            style={{
+              animation: "warm-glow 35s ease-in-out infinite",
+              transform: "translateZ(0)",
+            }}
+          ></div>
+        )}
       </div>
 
       {/* Enhanced Navigation */}
@@ -1548,7 +1617,6 @@ const words = [
           </div>
         </div>
       </section>
-
       {/* Enhanced Projects Section - Complete Final Version */}
       <section
         id="projects"
@@ -1560,7 +1628,7 @@ const words = [
         <div className="max-w-7xl mx-auto">
           {/* Section Header */}
           <div
-            className={`text-center mb-16 transform transition-all duration-1000 ${
+            className={`text-center mb-16 transform transition-all duration-500 ${
               visibleSections.has("projects")
                 ? "translate-y-0 opacity-100"
                 : "translate-y-20 opacity-0"
@@ -1589,7 +1657,9 @@ const words = [
             {projects.map((project, index) => (
               <div
                 key={project.title}
-                className={`group relative overflow-hidden rounded-3xl transition-all duration-700 hover:scale-105 cursor-pointer ${
+                className={`group relative overflow-hidden rounded-3xl transition-all duration-300 ${
+                  isMobile ? "hover:scale-100" : "hover:scale-105"
+                } cursor-pointer ${
                   darkMode
                     ? "bg-gray-800/60 hover:bg-gray-700/80 border border-gray-700"
                     : "bg-white/60 hover:bg-white/90 border border-gray-200"
@@ -1597,8 +1667,11 @@ const words = [
                   visibleSections.has("projects")
                     ? "translate-y-0 opacity-100"
                     : "translate-y-20 opacity-0"
-                } flex flex-col h-full`}
-                style={{ transitionDelay: `${index * 200}ms` }}
+                } flex flex-col h-full will-change-transform`}
+                style={{
+                  transitionDelay: `${index * (isMobile ? 100 : 200)}ms`,
+                  transform: "translateZ(0)",
+                }}
               >
                 {/* Project Image Section */}
                 <div className="relative h-48 overflow-hidden flex-shrink-0 bg-gradient-to-br from-gray-100 to-gray-200">
@@ -1608,10 +1681,14 @@ const words = [
                       <img
                         src={project.image}
                         alt={`${project.title} - Project Screenshot`}
-                        className="w-full h-full object-cover transition-all duration-500 group-hover:scale-110 group-hover:brightness-110"
+                        className={`w-full h-full object-cover transition-all duration-300 ${
+                          isMobile
+                            ? "group-hover:scale-100"
+                            : "group-hover:scale-110 group-hover:brightness-110"
+                        }`}
                         loading="lazy"
+                        decoding="async"
                         onError={(e) => {
-                          // Fallback to gradient background if image fails to load
                           e.target.style.display = "none";
                           e.target.nextElementSibling.style.display = "block";
                         }}
@@ -1634,7 +1711,9 @@ const words = [
                     <div
                       className={`w-full h-full bg-gradient-to-br ${
                         project.color || "from-gray-400 to-gray-600"
-                      } flex items-center justify-center transition-all duration-500 group-hover:scale-110`}
+                      } flex items-center justify-center transition-all duration-300 ${
+                        isMobile ? "" : "group-hover:scale-110"
+                      }`}
                     >
                       <div className="text-white text-4xl font-bold opacity-30">
                         {project.title.charAt(0)}
@@ -1643,7 +1722,7 @@ const words = [
                   )}
 
                   {/* Gradient Overlay for text readability */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent group-hover:from-black/40 transition-all duration-500"></div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent group-hover:from-black/40 transition-all duration-300"></div>
 
                   {/* Project Category Badge */}
                   {project.category && (
@@ -1654,22 +1733,26 @@ const words = [
                     </div>
                   )}
 
-                  {/* Floating Metrics */}
-                  <div className="absolute top-4 right-4 space-y-2 z-10">
-                    {Object.entries(project.metrics || {})
-                      .slice(0, 2)
-                      .map(([key, value]) => (
-                        <div
-                          key={key}
-                          className="bg-white/20 backdrop-blur-md rounded-lg px-3 py-1 text-white text-sm font-medium shadow-lg border border-white/10"
-                        >
-                          {value}
-                        </div>
-                      ))}
-                  </div>
+                  {/* Floating Metrics - مبسط للموبايل */}
+                  {!isMobile && (
+                    <div className="absolute top-4 right-4 space-y-2 z-10">
+                      {Object.entries(project.metrics || {})
+                        .slice(0, 2)
+                        .map(([key, value]) => (
+                          <div
+                            key={key}
+                            className="bg-white/20 backdrop-blur-md rounded-lg px-3 py-1 text-white text-sm font-medium shadow-lg border border-white/10"
+                          >
+                            {value}
+                          </div>
+                        ))}
+                    </div>
+                  )}
 
-                  {/* Hover Glow Effect */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/20 to-teal-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                  {/* Hover Glow Effect - للكمبيوتر فقط */}
+                  {!isMobile && (
+                    <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/20 to-teal-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  )}
                 </div>
 
                 {/* Content Section */}
@@ -1702,7 +1785,7 @@ const words = [
                       {(project.features || []).slice(0, 4).map((feature) => (
                         <div
                           key={feature}
-                          className={`text-xs px-2 py-1 rounded-full text-center transition-colors duration-300 ${
+                          className={`text-xs px-2 py-1 rounded-full text-center transition-colors duration-200 ${
                             darkMode
                               ? "bg-gray-700 text-gray-300 group-hover:bg-gray-600"
                               : "bg-gray-100 text-gray-600 group-hover:bg-gray-200"
@@ -1720,7 +1803,7 @@ const words = [
                       {(project.tech || []).slice(0, 6).map((tech) => (
                         <span
                           key={tech}
-                          className={`px-2 py-1 text-xs rounded-full font-medium transition-all duration-300 ${
+                          className={`px-2 py-1 text-xs rounded-full font-medium transition-all duration-200 ${
                             darkMode
                               ? "bg-gray-700 text-cyan-400 border border-gray-600 group-hover:bg-cyan-900/50 group-hover:border-cyan-500"
                               : "bg-cyan-50 text-cyan-700 border border-cyan-200 group-hover:bg-cyan-100 group-hover:border-cyan-300"
@@ -1736,11 +1819,15 @@ const words = [
                   <div className="mt-auto space-y-3">
                     {/* Primary CTA Button */}
                     <button
-                      className={`w-full text-sm font-semibold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all duration-300 group-hover:gap-4 ${
+                      className={`w-full text-sm font-semibold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all duration-300 ${
+                        isMobile ? "" : "group-hover:gap-4"
+                      } ${
                         darkMode
                           ? "bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-500 hover:to-teal-500 text-white"
                           : "bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-600 hover:to-teal-600 text-white"
-                      } shadow-lg hover:shadow-xl transform hover:-translate-y-1`}
+                      } shadow-lg hover:shadow-xl transform ${
+                        isMobile ? "" : "hover:-translate-y-1"
+                      }`}
                       onClick={() => {
                         if (project.liveUrl) {
                           window.open(project.liveUrl, "_blank");
@@ -1756,7 +1843,7 @@ const words = [
                       <div className="flex gap-2">
                         {project.githubUrl && (
                           <button
-                            className={`flex-1 text-sm py-2 px-3 rounded-lg flex items-center justify-center gap-2 transition-all duration-300 ${
+                            className={`flex-1 text-sm py-2 px-3 rounded-lg flex items-center justify-center gap-2 transition-all duration-200 ${
                               darkMode
                                 ? "bg-gray-700 hover:bg-gray-600 text-gray-300 hover:text-white border border-gray-600"
                                 : "bg-gray-100 hover:bg-gray-200 text-gray-700 hover:text-gray-900 border border-gray-200"
@@ -1771,7 +1858,7 @@ const words = [
                         )}
                         {project.caseStudyUrl && (
                           <button
-                            className={`flex-1 text-sm py-2 px-3 rounded-lg flex items-center justify-center gap-2 transition-all duration-300 ${
+                            className={`flex-1 text-sm py-2 px-3 rounded-lg flex items-center justify-center gap-2 transition-all duration-200 ${
                               darkMode
                                 ? "bg-gray-700 hover:bg-gray-600 text-gray-300 hover:text-white border border-gray-600"
                                 : "bg-gray-100 hover:bg-gray-200 text-gray-700 hover:text-gray-900 border border-gray-200"
@@ -1789,8 +1876,10 @@ const words = [
                   </div>
                 </div>
 
-                {/* Card Hover Glow Effect */}
-                <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500/20 to-teal-500/20 rounded-3xl opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-500 -z-10"></div>
+                {/* Card Hover Glow Effect - للكمبيوتر فقط */}
+                {!isMobile && (
+                  <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500/20 to-teal-500/20 rounded-3xl opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300 -z-10"></div>
+                )}
               </div>
             ))}
           </div>
@@ -2720,30 +2809,67 @@ const words = [
           backdrop-filter: blur(24px);
         }
 
-        /* تحسين الأداء للموبايل */
+        /* تحسين الأداء للموبايل - محسن بقوة */
         @media (max-width: 768px) {
+          * {
+            -webkit-transform: translateZ(0);
+            transform: translateZ(0);
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+          }
+
           .animate-pulse {
-            animation-duration: 3s !important;
+            animation-duration: 4s !important;
+            animation-timing-function: ease-in-out !important;
           }
 
           .animate-bounce {
-            animation-duration: 2s !important;
+            animation: none !important;
           }
 
           .group:hover .group-hover\\:scale-110 {
-            transform: scale(1.05) !important;
+            transform: scale(1.02) !important;
           }
 
           .group:hover .group-hover\\:scale-125 {
-            transform: scale(1.08) !important;
+            transform: scale(1.05) !important;
           }
 
           .blur-3xl {
-            filter: blur(40px) !important;
+            filter: blur(20px) !important;
           }
 
           .blur-xl {
-            filter: blur(16px) !important;
+            filter: blur(8px) !important;
+          }
+
+          .backdrop-blur-sm {
+            backdrop-filter: blur(4px) !important;
+          }
+
+          .backdrop-blur-xl {
+            backdrop-filter: blur(8px) !important;
+          }
+
+          .shadow-2xl {
+            box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1) !important;
+          }
+
+          .transition-all {
+            transition-duration: 200ms !important;
+          }
+
+          /* إلغاء الانيميشن المعقدة للموبايل */
+          .animate-power-float,
+          .animate-power-drift,
+          .animate-power-pulse,
+          .animate-wave-power,
+          .animate-wave-power-reverse,
+          .animate-geo-rotate,
+          .animate-geo-float,
+          .animate-geo-pulse,
+          .animate-ambient-light {
+            animation: none !important;
           }
         }
 
@@ -2984,9 +3110,180 @@ const words = [
         .animate-ambient-light {
           animation: ambient-light 15s ease-in-out infinite;
         }
+
+        /* Geometric animations */
+        @keyframes warm-flow {
+          0%,
+          100% {
+            transform: rotate(0deg) scale(1);
+            opacity: 0.5;
+          }
+          50% {
+            transform: rotate(3deg) scale(1.05);
+            opacity: 0.7;
+          }
+        }
+
+        @keyframes geo-rotate {
+          0% {
+            transform: rotate(0deg) scale(1);
+            opacity: 0.2;
+          }
+          50% {
+            transform: rotate(180deg) scale(1.1);
+            opacity: 0.35;
+          }
+          100% {
+            transform: rotate(360deg) scale(1);
+            opacity: 0.2;
+          }
+        }
+
+        @keyframes geo-float {
+          0%,
+          100% {
+            transform: translate(0, 0) scale(1) rotate(0deg);
+            opacity: 0.18;
+          }
+          33% {
+            transform: translate(50px, -30px) scale(1.15) rotate(45deg);
+            opacity: 0.3;
+          }
+          66% {
+            transform: translate(-40px, 40px) scale(0.9) rotate(-30deg);
+            opacity: 0.15;
+          }
+        }
+
+        @keyframes geo-pulse {
+          0%,
+          100% {
+            transform: scale(1) rotate(0deg);
+            opacity: 0.16;
+          }
+          50% {
+            transform: scale(1.25) rotate(15deg);
+            opacity: 0.28;
+          }
+        }
+
+        @keyframes geo-spin {
+          0%,
+          100% {
+            transform: translate(0, 0) scale(1) rotate(0deg);
+            opacity: 0.15;
+          }
+          25% {
+            transform: translate(40px, 20px) scale(1.1) rotate(72deg);
+            opacity: 0.25;
+          }
+          50% {
+            transform: translate(-20px, 50px) scale(0.95) rotate(144deg);
+            opacity: 0.12;
+          }
+          75% {
+            transform: translate(50px, -30px) scale(1.05) rotate(216deg);
+            opacity: 0.22;
+          }
+        }
+
+        @keyframes mobile-geo-1 {
+          0%,
+          100% {
+            transform: rotate(0deg) scale(1);
+            opacity: 0.15;
+          }
+          50% {
+            transform: rotate(90deg) scale(1.1);
+            opacity: 0.25;
+          }
+        }
+
+        @keyframes mobile-geo-2 {
+          0%,
+          100% {
+            transform: translate(0, 0) rotate(0deg);
+            opacity: 0.12;
+          }
+          50% {
+            transform: translate(15px, -20px) rotate(60deg);
+            opacity: 0.22;
+          }
+        }
+
+        @keyframes geo-particles {
+          0% {
+            transform: translateY(100vh) scale(0) rotate(0deg);
+            opacity: 0;
+          }
+          10% {
+            opacity: 0.4;
+            transform: scale(1);
+          }
+          90% {
+            opacity: 0.4;
+          }
+          100% {
+            transform: translateY(-100vh) scale(1.2) rotate(180deg);
+            opacity: 0;
+          }
+        }
+
+        @keyframes geo-grid {
+          0% {
+            transform: translate(0, 0) rotate(15deg) scale(1);
+          }
+          100% {
+            transform: translate(150px, 150px) rotate(15deg) scale(1);
+          }
+        }
+
+        @keyframes diagonal-wave-1 {
+          0%,
+          100% {
+            transform: translateX(-100%) skewY(-5deg) scaleY(1);
+            opacity: 0;
+          }
+          50% {
+            transform: translateX(0%) skewY(-5deg) scaleY(1.1);
+            opacity: 0.1;
+          }
+          100% {
+            transform: translateX(100%) skewY(-5deg) scaleY(1);
+            opacity: 0;
+          }
+        }
+
+        @keyframes diagonal-wave-2 {
+          0%,
+          100% {
+            transform: translateY(-100%) skewY(3deg) scaleX(1);
+            opacity: 0;
+          }
+          50% {
+            transform: translateY(0%) skewY(3deg) scaleX(1.05);
+            opacity: 0.08;
+          }
+          100% {
+            transform: translateY(100%) skewY(3deg) scaleX(1);
+            opacity: 0;
+          }
+        }
+
+        @keyframes warm-glow {
+          0%,
+          100% {
+            opacity: 0.12;
+            transform: rotate(0deg) scale(1);
+          }
+          50% {
+            opacity: 0.22;
+            transform: rotate(5deg) scale(1.03);
+          }
+        }
       `}</style>
     </div>
   );
 };
 
-export default Portfolio;
+export default Portfolio;   
