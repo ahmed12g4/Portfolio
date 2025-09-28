@@ -40,21 +40,20 @@ const Portfolio = () => {
   const [typewriterText, setTypewriterText] = useState("");
   const [currentRole, setCurrentRole] = useState(0);
 
-
-const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
 
-useEffect(() => {
-  const checkMobile = () => {
-    const mobile = window.innerWidth < 768;
-    setIsMobile(mobile);
-    // تفعيل الموشن المحدود للموبايل والأجهزة الضعيفة
-    setReducedMotion(mobile || window.navigator.hardwareConcurrency < 4);
-  };
-  checkMobile();
-  window.addEventListener('resize', checkMobile, { passive: true });
-  return () => window.removeEventListener('resize', checkMobile);
-}, []);
+  useEffect(() => {
+    const checkMobile = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      // تفعيل الموشن المحدود للموبايل والأجهزة الضعيفة
+      setReducedMotion(mobile || window.navigator.hardwareConcurrency < 4);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile, { passive: true });
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   const roles = [
     "Full-Stack Developer",
@@ -78,43 +77,64 @@ useEffect(() => {
     "Problem Solver",
   ];
 
-  // Typewriter effect
+  // Typewriter effect - محسن للأداء
   useEffect(() => {
+    if (reducedMotion || isMobile) {
+      // للموبايل: عرض مباشر بدون تايبرايتر
+      setTypewriterText(roles[currentRole]);
+      const timeout = setTimeout(() => {
+        setCurrentRole((prev) => (prev + 1) % roles.length);
+      }, 3000);
+      return () => clearTimeout(timeout);
+    }
+
     let timeout;
     const currentRoleText = roles[currentRole];
 
     if (typewriterText.length < currentRoleText.length) {
       timeout = setTimeout(() => {
         setTypewriterText(currentRoleText.slice(0, typewriterText.length + 1));
-      }, 100);
+      }, 120); // أبطأ قليلاً لتقليل العمليات
     } else {
       timeout = setTimeout(() => {
         setTypewriterText("");
         setCurrentRole((prev) => (prev + 1) % roles.length);
-      }, 2000);
+      }, 2500);
     }
 
     return () => clearTimeout(timeout);
-  }, [typewriterText, currentRole]);
-
- // Scroll effect - محسن للموبايل
+  }, [typewriterText, currentRole, reducedMotion, isMobile]);
+  // Scroll effect - محسن جداً للموبايل
   useEffect(() => {
-    if (isMobile) return; // إيقاف scroll effect للموبايل
-    
+    if (isMobile || reducedMotion) return; // إيقاف كامل للموبايل
+
     let ticking = false;
+    let timeout;
+
     const handleScroll = () => {
+      clearTimeout(timeout);
+
       if (!ticking) {
-        requestAnimationFrame(() => {
-          setScrollY(window.scrollY);
-          ticking = false;
-        });
+        timeout = setTimeout(() => {
+          requestAnimationFrame(() => {
+            setScrollY(window.scrollY);
+            ticking = false;
+          });
+        }, 16); // throttle to ~60fps
         ticking = true;
       }
     };
-    
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [isMobile]);
+
+    window.addEventListener("scroll", handleScroll, {
+      passive: true,
+      capture: false,
+    });
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      clearTimeout(timeout);
+    };
+  }, [isMobile, reducedMotion]);
   const toggleDarkMode = () => setDarkMode(!darkMode);
   const toggleMobileMenu = () => setMobileMenuOpen(!mobileMenuOpen);
 
@@ -248,61 +268,97 @@ useEffect(() => {
   const [visibleSections, setVisibleSections] = useState(new Set());
   const sectionRefs = useRef({});
 
-// Intersection Observer - محسن للموبايل
+  // Intersection Observer - محسن جداً للأداء
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setVisibleSections((prev) => new Set([...prev, entry.target.id]));
-          }
-        });
-      },
-      { 
-        threshold: isMobile ? 0.05 : 0.1, // threshold أقل للموبايل
-        rootMargin: isMobile ? "50px" : "100px" // margin أكبر للموبايل
-      }
-    );
+    if (!window.IntersectionObserver) return; // fallback للمتصفحات القديمة
 
-    Object.values(sectionRefs.current).forEach((ref) => {
-      if (ref) observer.observe(ref);
+    let observer;
+    let throttleTimeout;
+
+    const handleIntersection = (entries) => {
+      if (throttleTimeout) return;
+
+      throttleTimeout = setTimeout(
+        () => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              setVisibleSections((prev) => {
+                if (prev.has(entry.target.id)) return prev; // تجنب إعادة التحديث
+                return new Set([...prev, entry.target.id]);
+              });
+            }
+          });
+          throttleTimeout = null;
+        },
+        isMobile ? 150 : 50
+      ); // throttle أكبر للموبايل
+    };
+
+    observer = new IntersectionObserver(handleIntersection, {
+      threshold: isMobile ? 0.02 : 0.1, // threshold أقل جداً للموبايل
+      rootMargin: isMobile ? "20px" : "50px", // margin أقل للموبايل
+      root: null,
     });
 
-    return () => observer.disconnect();
+    // observe بشكل آمن
+    Object.values(sectionRefs.current).forEach((ref) => {
+      if (ref && observer) {
+        observer.observe(ref);
+      }
+    });
+
+    return () => {
+      if (observer) observer.disconnect();
+      if (throttleTimeout) clearTimeout(throttleTimeout);
+    };
   }, [isMobile]);
 
-  // Animated counter hook
+  // Animated counter hook - محسن للأداء
   useEffect(() => {
-    if (visibleSections.has("stats")) {
-      const targets = {
-        projects: 120,
-        performance: 98,
-        clients: 24,
-        experience: 3,
-      };
-      const duration = 2000;
-      const steps = 60;
-      const stepTime = duration / steps;
+    if (!visibleSections.has("stats")) return;
 
-      Object.keys(targets).forEach((key) => {
-        const target = targets[key];
-        let current = 0;
-        const increment = target / steps;
+    const targets = {
+      projects: 120,
+      performance: 98,
+      clients: 24,
+      experience: 3,
+    };
 
-        const timer = setInterval(() => {
-          current += increment;
-          if (current >= target) {
-            current = target;
-            clearInterval(timer);
-          }
-          setAnimatedCounts((prev) => ({
-            ...prev,
-            [key]: Math.floor(current),
-          }));
-        }, stepTime);
-      });
+    // للموبايل: عرض مباشر بدون انيميشن
+    if (isMobile || reducedMotion) {
+      setAnimatedCounts(targets);
+      return;
     }
-  }, [visibleSections]);
+
+    const duration = 1500; // مدة أقل
+    const steps = 30; // خطوات أقل
+    const stepTime = duration / steps;
+    const timers = [];
+
+    Object.keys(targets).forEach((key) => {
+      const target = targets[key];
+      let current = 0;
+      const increment = target / steps;
+
+      const timer = setInterval(() => {
+        current += increment;
+        if (current >= target) {
+          current = target;
+          clearInterval(timer);
+        }
+        setAnimatedCounts((prev) => ({
+          ...prev,
+          [key]: Math.floor(current),
+        }));
+      }, stepTime);
+
+      timers.push(timer);
+    });
+
+    return () => {
+      timers.forEach((timer) => clearInterval(timer));
+    };
+  }, [visibleSections, isMobile, reducedMotion]);
   const skills = [
     {
       name: "TypeScript",
@@ -2809,67 +2865,78 @@ const words = [
           backdrop-filter: blur(24px);
         }
 
-        /* تحسين الأداء للموبايل - محسن بقوة */
+        /* تحسين قوي جداً للموبايل */
         @media (max-width: 768px) {
           * {
-            -webkit-transform: translateZ(0);
-            transform: translateZ(0);
+            -webkit-transform: translate3d(0, 0, 0);
+            transform: translate3d(0, 0, 0);
             backface-visibility: hidden;
             -webkit-backface-visibility: hidden;
+            -webkit-perspective: 1000px;
+            perspective: 1000px;
           }
 
-          .animate-pulse {
-            animation-duration: 4s !important;
-            animation-timing-function: ease-in-out !important;
+          /* إلغاء كل الانيميشن للموبايل */
+          *,
+          *::before,
+          *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+            scroll-behavior: auto !important;
           }
 
-          .animate-bounce {
-            animation: none !important;
-          }
-
-          .group:hover .group-hover\\:scale-110 {
-            transform: scale(1.02) !important;
-          }
-
-          .group:hover .group-hover\\:scale-125 {
-            transform: scale(1.05) !important;
-          }
-
-          .blur-3xl {
-            filter: blur(20px) !important;
-          }
-
-          .blur-xl {
-            filter: blur(8px) !important;
-          }
-
-          .backdrop-blur-sm {
-            backdrop-filter: blur(4px) !important;
-          }
-
+          /* إلغاء كل التأثيرات البصرية الثقيلة */
+          .blur-xl,
+          .blur-3xl,
+          .blur-2xl,
+          .backdrop-blur-sm,
           .backdrop-blur-xl {
-            backdrop-filter: blur(8px) !important;
+            filter: none !important;
+            backdrop-filter: none !important;
           }
 
-          .shadow-2xl {
-            box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1) !important;
+          /* إلغاء كل الـ hover effects */
+          .group:hover *,
+          .hover\\:scale-105:hover,
+          .hover\\:scale-110:hover,
+          .hover\\:scale-125:hover {
+            transform: none !important;
           }
 
-          .transition-all {
-            transition-duration: 200ms !important;
-          }
-
-          /* إلغاء الانيميشن المعقدة للموبايل */
-          .animate-power-float,
-          .animate-power-drift,
-          .animate-power-pulse,
-          .animate-wave-power,
-          .animate-wave-power-reverse,
-          .animate-geo-rotate,
-          .animate-geo-float,
-          .animate-geo-pulse,
-          .animate-ambient-light {
+          /* إلغاء كل الانيميشن المعقدة */
+          [class*="animate-"],
+          [class*="animation-"] {
             animation: none !important;
+          }
+
+          /* تبسيط الظلال */
+          .shadow-xl,
+          .shadow-2xl {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+          }
+
+          /* تبسيط الـ gradients */
+          [class*="bg-gradient-"] {
+            background: currentColor !important;
+          }
+
+          /* إيقاف will-change للموبايل */
+          .will-change-transform {
+            will-change: auto !important;
+          }
+        }
+
+        /* إضافة تحسين للسكرول */
+        @media (max-width: 768px) {
+          html {
+            scroll-behavior: auto !important;
+            -webkit-overflow-scrolling: touch;
+          }
+
+          body {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
           }
         }
 
