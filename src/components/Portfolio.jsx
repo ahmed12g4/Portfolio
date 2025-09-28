@@ -2865,78 +2865,67 @@ const words = [
           backdrop-filter: blur(24px);
         }
 
-        /* تحسين قوي جداً للموبايل */
+        /* تحسين الأداء للموبايل - محسن بقوة */
         @media (max-width: 768px) {
           * {
-            -webkit-transform: translate3d(0, 0, 0);
-            transform: translate3d(0, 0, 0);
+            -webkit-transform: translateZ(0);
+            transform: translateZ(0);
             backface-visibility: hidden;
             -webkit-backface-visibility: hidden;
-            -webkit-perspective: 1000px;
-            perspective: 1000px;
           }
 
-          /* إلغاء كل الانيميشن للموبايل */
-          *,
-          *::before,
-          *::after {
-            animation-duration: 0.01ms !important;
-            animation-iteration-count: 1 !important;
-            transition-duration: 0.01ms !important;
-            scroll-behavior: auto !important;
+          .animate-pulse {
+            animation-duration: 4s !important;
+            animation-timing-function: ease-in-out !important;
           }
 
-          /* إلغاء كل التأثيرات البصرية الثقيلة */
-          .blur-xl,
-          .blur-3xl,
-          .blur-2xl,
-          .backdrop-blur-sm,
-          .backdrop-blur-xl {
-            filter: none !important;
-            backdrop-filter: none !important;
-          }
-
-          /* إلغاء كل الـ hover effects */
-          .group:hover *,
-          .hover\\:scale-105:hover,
-          .hover\\:scale-110:hover,
-          .hover\\:scale-125:hover {
-            transform: none !important;
-          }
-
-          /* إلغاء كل الانيميشن المعقدة */
-          [class*="animate-"],
-          [class*="animation-"] {
+          .animate-bounce {
             animation: none !important;
           }
 
-          /* تبسيط الظلال */
-          .shadow-xl,
+          .group:hover .group-hover\\:scale-110 {
+            transform: scale(1.02) !important;
+          }
+
+          .group:hover .group-hover\\:scale-125 {
+            transform: scale(1.05) !important;
+          }
+
+          .blur-3xl {
+            filter: blur(20px) !important;
+          }
+
+          .blur-xl {
+            filter: blur(8px) !important;
+          }
+
+          .backdrop-blur-sm {
+            backdrop-filter: blur(4px) !important;
+          }
+
+          .backdrop-blur-xl {
+            backdrop-filter: blur(8px) !important;
+          }
+
           .shadow-2xl {
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+            box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1) !important;
           }
 
-          /* تبسيط الـ gradients */
-          [class*="bg-gradient-"] {
-            background: currentColor !important;
+          .transition-all {
+            transition-duration: 200ms !important;
           }
 
-          /* إيقاف will-change للموبايل */
-          .will-change-transform {
-            will-change: auto !important;
-          }
-        }
-
-        /* إضافة تحسين للسكرول */
-        @media (max-width: 768px) {
-          html {
-            scroll-behavior: auto !important;
-            -webkit-overflow-scrolling: touch;
-          }
-
-          body {
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
+          /* إلغاء الانيميشن المعقدة للموبايل */
+          .animate-power-float,
+          .animate-power-drift,
+          .animate-power-pulse,
+          .animate-wave-power,
+          .animate-wave-power-reverse,
+          .animate-geo-rotate,
+          .animate-geo-float,
+          .animate-geo-pulse,
+          .animate-ambient-light {
+            animation: none !important;
           }
         }
 
