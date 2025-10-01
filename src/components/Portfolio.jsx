@@ -1,6 +1,7 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect, useRef } from "react";
+import emailjs from '@emailjs/browser'; // أضف هذا السطر
 import {
   Menu,
   X,
@@ -25,6 +26,7 @@ import {
   Coffee,
   Twitter,
   Instagram,
+  Download,
 } from "lucide-react";
 
 const Portfolio = () => {
@@ -38,10 +40,96 @@ const Portfolio = () => {
   });
   const [scrollY, setScrollY] = useState(0);
   const [typewriterText, setTypewriterText] = useState("");
+  const [activeSection, setActiveSection] = useState("about");
   const [currentRole, setCurrentRole] = useState(0);
+  const [projectsLoading, setProjectsLoading] = useState(true);
+  const [imagesLoaded, setImagesLoaded] = useState({});
 
   const [isMobile, setIsMobile] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
+
+  // Contact Form States
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    budget: "",
+    message: "",
+  });
+  const [formStatus, setFormStatus] = useState({ type: "", message: "" });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // EmailJS Configuration
+  const EMAILJS_SERVICE_ID = "service_dt5nnbg";
+  const EMAILJS_TEMPLATE_ID = "template_32rxye4";
+  const EMAILJS_PUBLIC_KEY = "ckS71tonB4w1C0U_U";
+
+  // Initialize EmailJS
+  useEffect(() => {
+    emailjs.init(EMAILJS_PUBLIC_KEY);
+  }, []);
+
+  // Handle form input changes
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  // Handle form submission
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!formData.name || !formData.email || !formData.message) {
+      setFormStatus({
+        type: "error",
+        message: "Please fill in all required fields (Name, Email, Message)",
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+    setFormStatus({ type: "", message: "" });
+
+    try {
+      const response = await emailjs.send(
+        EMAILJS_SERVICE_ID,
+        EMAILJS_TEMPLATE_ID,
+        {
+          from_name: formData.name,
+          from_email: formData.email,
+          budget: formData.budget || "Not specified",
+          message: formData.message,
+          to_email: "ahmedalaaseleem989@gmail.com",
+        }
+      );
+
+      if (response.status === 200) {
+        setFormStatus({
+          type: "success",
+          message:
+            "Message sent successfully! I'll get back to you within 2-4 hours.",
+        });
+
+        setFormData({
+          name: "",
+          email: "",
+          budget: "",
+          message: "",
+        });
+      }
+    } catch (error) {
+      console.error("EmailJS Error:", error);
+      setFormStatus({
+        type: "error",
+        message:
+          "Failed to send message. Please try again or contact me directly at ahmedalaaseleem989@gmail.com",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   useEffect(() => {
     const checkMobile = () => {
@@ -54,6 +142,46 @@ const Portfolio = () => {
     window.addEventListener("resize", checkMobile, { passive: true });
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
+
+  // Skeleton Loader Component - ضيفه بعد السطر 23 تقريباً (بعد const Portfolio = () => {)
+  const ProjectCardSkeleton = ({ darkMode }) => (
+    <div
+      className={`rounded-3xl overflow-hidden ${
+        darkMode
+          ? "bg-gray-800/60 border border-gray-700"
+          : "bg-white/60 border border-gray-200"
+      } backdrop-blur-sm shadow-xl animate-pulse`}
+    >
+      {/* Image Skeleton */}
+      <div className="h-48 bg-gradient-to-br from-gray-300 to-gray-400 dark:from-gray-700 dark:to-gray-600"></div>
+
+      {/* Content Skeleton */}
+      <div className="p-6 space-y-4">
+        {/* Title */}
+        <div className="h-6 bg-gray-300 dark:bg-gray-700 rounded-lg w-3/4"></div>
+
+        {/* Description */}
+        <div className="space-y-2">
+          <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded w-full"></div>
+          <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded w-5/6"></div>
+          <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded w-4/6"></div>
+        </div>
+
+        {/* Tech Stack */}
+        <div className="flex gap-2">
+          {[1, 2, 3, 4].map((i) => (
+            <div
+              key={i}
+              className="h-6 w-16 bg-gray-300 dark:bg-gray-700 rounded-full"
+            ></div>
+          ))}
+        </div>
+
+        {/* Button */}
+        <div className="h-12 bg-gray-300 dark:bg-gray-700 rounded-xl w-full"></div>
+      </div>
+    </div>
+  );
 
   const roles = [
     "Full-Stack Developer",
@@ -144,6 +272,22 @@ const Portfolio = () => {
       element.scrollIntoView({ behavior: "smooth" });
     }
     setMobileMenuOpen(false);
+  };
+
+  // Simulate initial loading - ضيفه حوالي السطر 180
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setProjectsLoading(false);
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Track image loading
+  const handleImageLoad = (projectIndex) => {
+    setImagesLoaded((prev) => ({
+      ...prev,
+      [projectIndex]: true,
+    }));
   };
 
   // Logo Component with Animation
@@ -552,26 +696,34 @@ const Portfolio = () => {
     },
 
     {
-      title: "EduBridge — Learning Platform",
-      // أضف هذا السطر ↓
-      image: "/images/projects/edubridge/download (1).png",
-      category: "EdTech", // أضف الفئة
+      title: "Smart Finance Manager — Personal Finance Platform",
+
+      image: "/images/projects/monyflow/Screenshot 2025-10-01 051803.png",
+      category: "FinTech",
       description:
-        "Modern e-learning platform with interactive courses, progress tracking, and AI-powered recommendations.",
+        "A complete personal finance management platform with interactive dashboards, expense tracking, smart budgets, and financial goal setting.",
       longDescription:
-        "Comprehensive learning management system with video streaming, interactive quizzes, progress analytics, and personalized learning paths.",
-      tech: ["Next.js", "PostgreSQL", "Prisma", "AWS S3", "Redis"],
-      features: [
-        "Video streaming",
-        "Progress tracking",
-        "AI recommendations",
-        "Mobile app",
+        "An advanced web application that helps users manage their income and expenses, create custom budgets, set financial goals, and track recurring payments. Equipped with modern UI and detailed analytics dashboards to provide clear insights into financial performance.",
+      tech: [
+        "React.js",
+        "Tailwind",
+        "Chart.js",
+        "Node.js",
+        "Express",
+        "MongoDB",
       ],
-      color: "from-violet-400 via-purple-500 to-indigo-500",
-      metrics: { learners: "15K+", courses: "500+", completion: "78%" },
-      // أضف هذه الروابط ↓
-      liveUrl: "https://edubridge-delta.vercel.app/",
-      githubUrl: "https://github.com/ahmed12g4/Edubridge.git",
+      features: [
+        "Interactive dashboard",
+        "Transaction tracking",
+        "Budget management",
+        "Financial goals",
+        "Recurring payments",
+        "Analytics & charts",
+      ],
+      color: "from-cyan-500 via-blue-600 to-indigo-700",
+      metrics: { users: "5K+", transactions: "100K+", uptime: "99.9%" },
+      liveUrl: "https://money-flow-rust.vercel.app/",
+      githubUrl: "https://github.com/ahmed12g4/MoneyFlow-.git",
       caseStudyUrl: null,
     },
   ];
@@ -706,271 +858,113 @@ const Portfolio = () => {
           : "bg-gradient-to-br from-slate-50 via-blue-50 to-cyan-50"
       }`}
     >
-      {/* Modern Geometric Background - Professional & Animated */}
+      {/* Elegant Mesh Gradient Background */}
       <div className="fixed inset-0 z-0 overflow-hidden">
-        {/* Sophisticated base */}
+        {/* Base Gradient */}
         <div
           className={`absolute inset-0 transition-all duration-1000 ${
             darkMode
-              ? "bg-gradient-to-br from-gray-900 via-slate-900 to-gray-800"
-              : "bg-gradient-to-br from-amber-50 via-orange-50 to-red-50"
+              ? "bg-gradient-to-br from-slate-950 via-gray-900 to-slate-950"
+              : "bg-gradient-to-br from-white via-slate-50 to-gray-100"
           }`}
         ></div>
 
-        {/* Warm gradient overlay */}
-        <div className="absolute inset-0">
-          <div
-            className={`absolute inset-0 will-change-transform ${
-              darkMode
-                ? "bg-gradient-to-br from-orange-900/25 via-red-800/30 to-pink-900/20"
-                : "bg-gradient-to-br from-orange-100/35 via-red-100/40 to-pink-100/25"
-            }`}
-            style={{
-              backgroundImage: darkMode
-                ? `radial-gradient(circle at 25% 25%, rgba(251, 146, 60, 0.2) 0%, transparent 55%),
-                   radial-gradient(circle at 75% 75%, rgba(239, 68, 68, 0.18) 0%, transparent 60%),
-                   radial-gradient(circle at 50% 10%, rgba(236, 72, 153, 0.15) 0%, transparent 65%)`
-                : `radial-gradient(circle at 25% 25%, rgba(251, 146, 60, 0.15) 0%, transparent 55%),
-                   radial-gradient(circle at 75% 75%, rgba(239, 68, 68, 0.12) 0%, transparent 60%),
-                   radial-gradient(circle at 50% 10%, rgba(236, 72, 153, 0.1) 0%, transparent 65%)`,
-              animation: "warm-flow 22s ease-in-out infinite",
-              transform: "translateZ(0)",
-            }}
-          ></div>
-        </div>
+        {/* Smooth Gradient Mesh */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background: darkMode
+              ? `
+          radial-gradient(at 27% 37%, rgba(16, 185, 129, 0.12) 0px, transparent 50%),
+          radial-gradient(at 97% 21%, rgba(59, 130, 246, 0.1) 0px, transparent 50%),
+          radial-gradient(at 52% 99%, rgba(139, 92, 246, 0.08) 0px, transparent 50%),
+          radial-gradient(at 10% 29%, rgba(6, 182, 212, 0.11) 0px, transparent 50%),
+          radial-gradient(at 97% 96%, rgba(20, 184, 166, 0.09) 0px, transparent 50%),
+          radial-gradient(at 33% 50%, rgba(99, 102, 241, 0.07) 0px, transparent 50%),
+          radial-gradient(at 79% 53%, rgba(147, 51, 234, 0.06) 0px, transparent 50%)
+        `
+              : `
+          radial-gradient(at 27% 37%, rgba(16, 185, 129, 0.08) 0px, transparent 50%),
+          radial-gradient(at 97% 21%, rgba(59, 130, 246, 0.07) 0px, transparent 50%),
+          radial-gradient(at 52% 99%, rgba(139, 92, 246, 0.06) 0px, transparent 50%),
+          radial-gradient(at 10% 29%, rgba(6, 182, 212, 0.08) 0px, transparent 50%),
+          radial-gradient(at 97% 96%, rgba(20, 184, 166, 0.06) 0px, transparent 50%),
+          radial-gradient(at 33% 50%, rgba(99, 102, 241, 0.05) 0px, transparent 50%),
+          radial-gradient(at 79% 53%, rgba(147, 51, 234, 0.04) 0px, transparent 50%)
+        `,
+            animation: "mesh-move 20s ease-in-out infinite",
+          }}
+        ></div>
 
-        {/* Geometric shapes - animated */}
+        {/* Subtle Animated Glow */}
         {!isMobile && !reducedMotion && (
           <>
-            {/* Large hexagon */}
             <div
-              className={`absolute top-20 left-20 w-80 h-80 will-change-transform ${
+              className={`absolute w-[500px] h-[500px] rounded-full ${
                 darkMode
-                  ? "bg-gradient-to-br from-orange-600/20 via-red-500/25 to-pink-600/15"
-                  : "bg-gradient-to-br from-orange-400/18 via-red-400/22 to-pink-400/12"
+                  ? "bg-gradient-to-br from-emerald-500/10 to-transparent"
+                  : "bg-gradient-to-br from-emerald-400/8 to-transparent"
               }`}
               style={{
-                clipPath:
-                  "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)",
-                filter: "blur(40px)",
-                animation: "geo-rotate 25s linear infinite",
-                transform: "translateZ(0)",
+                top: "20%",
+                left: "15%",
+                filter: "blur(100px)",
+                animation: "gentle-float-1 25s ease-in-out infinite",
               }}
             ></div>
 
-            {/* Diamond shape */}
             <div
-              className={`absolute bottom-20 right-24 w-72 h-72 will-change-transform ${
+              className={`absolute w-[450px] h-[450px] rounded-full ${
                 darkMode
-                  ? "bg-gradient-to-tl from-pink-600/18 via-rose-500/22 to-orange-600/12"
-                  : "bg-gradient-to-tl from-pink-400/15 via-rose-400/18 to-orange-400/10"
+                  ? "bg-gradient-to-tl from-blue-500/9 to-transparent"
+                  : "bg-gradient-to-tl from-blue-400/7 to-transparent"
               }`}
               style={{
-                clipPath: "polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)",
-                filter: "blur(45px)",
-                animation: "geo-float 20s ease-in-out infinite",
-                animationDelay: "3s",
-                transform: "translateZ(0)",
-              }}
-            ></div>
-
-            {/* Triangle */}
-            <div
-              className={`absolute top-1/2 right-1/4 w-64 h-64 will-change-transform ${
-                darkMode
-                  ? "bg-gradient-to-r from-red-600/16 via-orange-500/20 to-yellow-600/12"
-                  : "bg-gradient-to-r from-red-400/12 via-orange-400/16 to-yellow-400/8"
-              }`}
-              style={{
-                clipPath: "polygon(50% 0%, 0% 100%, 100% 100%)",
-                filter: "blur(35px)",
-                animation: "geo-pulse 18s ease-in-out infinite",
-                animationDelay: "6s",
-                transform: "translateZ(0)",
-              }}
-            ></div>
-
-            {/* Pentagon */}
-            <div
-              className={`absolute bottom-1/3 left-1/3 w-56 h-56 will-change-transform ${
-                darkMode
-                  ? "bg-gradient-to-br from-yellow-600/15 via-amber-500/18 to-orange-600/10"
-                  : "bg-gradient-to-br from-yellow-400/12 via-amber-400/15 to-orange-400/8"
-              }`}
-              style={{
-                clipPath:
-                  "polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%)",
-                filter: "blur(38px)",
-                animation: "geo-spin 30s ease-in-out infinite",
-                animationDelay: "9s",
-                transform: "translateZ(0)",
+                bottom: "20%",
+                right: "15%",
+                filter: "blur(90px)",
+                animation: "gentle-float-2 30s ease-in-out infinite",
               }}
             ></div>
           </>
         )}
 
-        {/* Mobile geometric version */}
-        {isMobile && (
-          <div className="absolute inset-0">
-            <div
-              className={`absolute top-16 right-12 w-32 h-32 ${
-                darkMode ? "bg-orange-500/12" : "bg-orange-400/10"
-              }`}
-              style={{
-                clipPath: "polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)",
-                filter: "blur(20px)",
-                animation: "mobile-geo-1 15s ease-in-out infinite",
-              }}
-            ></div>
-            <div
-              className={`absolute bottom-24 left-12 w-28 h-28 ${
-                darkMode ? "bg-pink-500/10" : "bg-pink-400/8"
-              }`}
-              style={{
-                clipPath: "polygon(50% 0%, 0% 100%, 100% 100%)",
-                filter: "blur(18px)",
-                animation: "mobile-geo-2 18s ease-in-out infinite",
-                animationDelay: "3s",
-              }}
-            ></div>
-          </div>
-        )}
-
-        {/* Floating geometric particles */}
-        <div className="absolute inset-0">
-          {[...Array(isMobile ? 8 : 24)].map((_, i) => (
-            <div
-              key={i}
-              className={`absolute will-change-transform ${
-                reducedMotion ? "animate-none opacity-20" : "opacity-40"
-              } ${
-                darkMode
-                  ? i % 4 === 0
-                    ? "bg-orange-400"
-                    : i % 4 === 1
-                    ? "bg-red-400"
-                    : i % 4 === 2
-                    ? "bg-pink-400"
-                    : "bg-yellow-400"
-                  : i % 4 === 0
-                  ? "bg-orange-500"
-                  : i % 4 === 1
-                  ? "bg-red-500"
-                  : i % 4 === 2
-                  ? "bg-pink-500"
-                  : "bg-yellow-500"
-              }`}
-              style={{
-                width: `${Math.random() * (isMobile ? 4 : 6) + 2}px`,
-                height: `${Math.random() * (isMobile ? 4 : 6) + 2}px`,
-                clipPath:
-                  i % 3 === 0
-                    ? "polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)"
-                    : i % 3 === 1
-                    ? "polygon(50% 0%, 0% 100%, 100% 100%)"
-                    : "none",
-                borderRadius: i % 3 === 2 ? "50%" : "0",
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                animation: reducedMotion
-                  ? "none"
-                  : `geo-particles ${12 + Math.random() * 8}s linear infinite`,
-                animationDelay: `${Math.random() * 15}s`,
-                transform: "translateZ(0)",
-              }}
-            ></div>
-          ))}
-        </div>
-
-        {/* Geometric grid pattern */}
-        {!isMobile && (
-          <div
-            className={`absolute inset-0 opacity-8 ${
-              darkMode ? "opacity-5" : ""
-            }`}
-            style={{
-              backgroundImage: `
-                linear-gradient(${
-                  darkMode
-                    ? "rgba(251, 146, 60, 0.08)"
-                    : "rgba(251, 146, 60, 0.12)"
-                } 1px, transparent 1px),
-                linear-gradient(90deg, ${
-                  darkMode
-                    ? "rgba(239, 68, 68, 0.08)"
-                    : "rgba(239, 68, 68, 0.12)"
-                } 1px, transparent 1px)
-              `,
-              backgroundSize: "150px 150px",
-              animation: reducedMotion
-                ? "none"
-                : "geo-grid 40s linear infinite",
-              transform: "translateZ(0) rotate(15deg)",
-            }}
-          ></div>
-        )}
-
-        {/* Diagonal waves */}
-        {!isMobile && !reducedMotion && (
-          <>
-            <div className="absolute inset-0">
-              <div
-                className={`absolute inset-0 will-change-transform ${
-                  darkMode
-                    ? "bg-gradient-to-br from-transparent via-orange-800/8 to-transparent"
-                    : "bg-gradient-to-br from-transparent via-orange-300/12 to-transparent"
-                }`}
-                style={{
-                  animation: "diagonal-wave-1 14s ease-in-out infinite",
-                  transform: "translateZ(0) skewY(-5deg)",
-                }}
-              ></div>
-            </div>
-            <div className="absolute inset-0">
-              <div
-                className={`absolute inset-0 will-change-transform ${
-                  darkMode
-                    ? "bg-gradient-to-tl from-transparent via-red-800/6 to-transparent"
-                    : "bg-gradient-to-tl from-transparent via-red-300/10 to-transparent"
-                }`}
-                style={{
-                  animation: "diagonal-wave-2 18s ease-in-out infinite",
-                  animationDelay: "3s",
-                  transform: "translateZ(0) skewY(3deg)",
-                }}
-              ></div>
-            </div>
-          </>
-        )}
-
-        {/* Warm ambient glow */}
-        {!reducedMotion && (
-          <div
-            className={`absolute inset-0 will-change-transform ${
-              darkMode
-                ? "bg-gradient-to-tr from-transparent via-amber-900/5 to-transparent"
-                : "bg-gradient-to-tr from-transparent via-amber-200/8 to-transparent"
-            }`}
-            style={{
-              animation: "warm-glow 35s ease-in-out infinite",
-              transform: "translateZ(0)",
-            }}
-          ></div>
-        )}
+        {/* Noise Texture for Depth */}
+        <div
+          className={`absolute inset-0 ${
+            darkMode ? "opacity-[0.015]" : "opacity-[0.02]"
+          }`}
+          style={{
+            backgroundImage:
+              "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='2' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E\")",
+            mixBlendMode: "overlay",
+          }}
+        ></div>
       </div>
-
-      {/* Enhanced Navigation */}
+      {/* Enhanced Fixed Navigation with Beautiful Effects */}
       <nav
-        className={`fixed top-0 w-full z-50 transition-all duration-500 ${
-          scrollY > 50
-            ? darkMode
-              ? "bg-gray-900/95 backdrop-blur-2xl border-gray-700 shadow-2xl"
-              : "bg-white/95 backdrop-blur-2xl border-gray-200 shadow-2xl"
-            : darkMode
-            ? "bg-gray-900/80 backdrop-blur-xl border-gray-800"
-            : "bg-white/80 backdrop-blur-xl border-gray-100"
+        className={`fixed top-0 w-full z-[100] transition-all duration-500 ${
+          darkMode
+            ? "bg-gray-900/95 backdrop-blur-2xl border-gray-700/50 shadow-2xl"
+            : "bg-white/95 backdrop-blur-2xl border-gray-200/50 shadow-2xl"
         } border-b`}
+        style={{ position: "fixed", top: 0, left: 0, right: 0 }}
       >
+        {/* Animated gradient border at top */}
+        <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-50"></div>
+
+        {/* Subtle animated glow effect */}
+        <div
+          className={`absolute inset-0 -z-10 ${
+            darkMode
+              ? "bg-gradient-to-r from-cyan-900/10 via-transparent to-teal-900/10"
+              : "bg-gradient-to-r from-cyan-100/30 via-transparent to-teal-100/30"
+          }`}
+          style={{
+            animation: "header-glow 8s ease-in-out infinite",
+          }}
+        ></div>
+
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
             <AnimatedLogo />
@@ -989,30 +983,91 @@ const Portfolio = () => {
                   key={item}
                   onClick={() => scrollToSection(item)}
                   className={`capitalize px-4 py-2 rounded-xl transition-all duration-300 hover:scale-105 font-medium relative group ${
-                    darkMode
+                    activeSection === item
+                      ? darkMode
+                        ? "text-cyan-400 bg-gray-800/70"
+                        : "text-cyan-600 bg-gray-100/70"
+                      : darkMode
                       ? "text-gray-300 hover:text-cyan-400 hover:bg-gray-800/50"
                       : "text-gray-700 hover:text-cyan-600 hover:bg-gray-100/50"
                   }`}
+                  title={`Go to ${item} section`}
                 >
                   {item}
-                  <div className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-gradient-to-r from-cyan-500 to-teal-500 group-hover:w-full group-hover:left-0 transition-all duration-300"></div>
+
+                  {/* Active indicator line */}
+                  <div
+                    className={`absolute bottom-0 h-0.5 bg-gradient-to-r from-cyan-500 to-teal-500 transition-all duration-300 ${
+                      activeSection === item
+                        ? "w-full left-0 right-0"
+                        : "w-0 left-1/2 right-1/2 group-hover:w-full group-hover:left-0 group-hover:right-0"
+                    }`}
+                  ></div>
+
+                  {/* Hover glow effect */}
+                  {activeSection === item && (
+                    <div className="absolute inset-0 bg-cyan-500/10 rounded-xl blur-lg -z-10 animate-pulse"></div>
+                  )}
                 </button>
               ))}
             </div>
 
             {/* Enhanced Controls */}
             <div className="flex items-center space-x-3">
+              {/* Download CV Button with animation */}
+              <a
+                href="#"
+                download
+                className={`group relative hidden sm:flex items-center space-x-2 px-5 py-2.5 rounded-xl font-semibold transition-all duration-300 hover:scale-105 hover:shadow-xl overflow-hidden ${
+                  darkMode
+                    ? "bg-gradient-to-r from-cyan-500 to-teal-500 text-white"
+                    : "bg-gradient-to-r from-cyan-600 to-teal-600 text-white"
+                } shadow-lg`}
+                title="Download my CV"
+              >
+                {/* Animated shimmer effect */}
+                <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+
+                <Download
+                  size={18}
+                  className="relative z-10 group-hover:rotate-12 transition-transform duration-300"
+                />
+                <span className="relative z-10">Download CV</span>
+
+                {/* Glow effect */}
+                <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500 to-teal-500 rounded-xl opacity-0 group-hover:opacity-30 blur-lg transition-opacity duration-300 -z-10"></div>
+              </a>
+
+              {/* Dark Mode Toggle */}
               <button
                 onClick={toggleDarkMode}
-                className={`p-3 rounded-xl transition-all duration-300 hover:scale-110 hover:rotate-12 ${
+                className={`relative p-3 rounded-xl transition-all duration-300 hover:scale-110 overflow-hidden ${
                   darkMode
                     ? "text-yellow-400 hover:bg-gray-800/70 bg-gray-800/40 shadow-lg"
                     : "text-gray-600 hover:bg-gray-100/70 bg-white/40 shadow-lg"
                 }`}
+                title={
+                  darkMode ? "Switch to light mode" : "Switch to dark mode"
+                }
               >
-                {darkMode ? <Sun size={20} /> : <Moon size={20} />}
+                <div
+                  className={`transition-transform duration-500 ${
+                    darkMode ? "rotate-180" : "rotate-0"
+                  }`}
+                >
+                  {darkMode ? <Sun size={20} /> : <Moon size={20} />}
+                </div>
+
+                {/* Rotating border effect */}
+                <div
+                  className={`absolute inset-0 rounded-xl border-2 opacity-0 hover:opacity-100 transition-opacity duration-300 ${
+                    darkMode ? "border-yellow-400/30" : "border-blue-400/30"
+                  }`}
+                  style={{ animation: "spin-slow 8s linear infinite" }}
+                ></div>
               </button>
 
+              {/* Mobile Menu Toggle */}
               <button
                 onClick={toggleMobileMenu}
                 className={`md:hidden p-3 rounded-xl transition-all duration-300 hover:scale-110 ${
@@ -1020,21 +1075,33 @@ const Portfolio = () => {
                     ? "text-gray-300 hover:bg-gray-800/70 bg-gray-800/40"
                     : "text-gray-700 hover:bg-gray-100/70 bg-white/40"
                 }`}
+                title="Toggle menu"
               >
-                {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+                <div
+                  className={`transition-all duration-300 ${
+                    mobileMenuOpen ? "rotate-90" : "rotate-0"
+                  }`}
+                >
+                  {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+                </div>
               </button>
             </div>
           </div>
         </div>
 
-        {/* Enhanced Mobile Menu */}
         {mobileMenuOpen && (
           <div
             className={`md:hidden transition-all duration-500 transform ${
               darkMode
-                ? "bg-gray-900/98 backdrop-blur-2xl border-gray-800"
-                : "bg-white/98 backdrop-blur-2xl border-gray-200"
+                ? "bg-gray-900 border-gray-800"
+                : "bg-white border-gray-200"
             } border-t shadow-2xl`}
+            style={{
+              backgroundColor: darkMode
+                ? "rgba(17, 24, 39, 0.98)"
+                : "rgba(255, 255, 255, 0.98)",
+              animation: "slideDown 0.3s ease-out",
+            }}
           >
             <div className="px-6 py-8 space-y-2">
               {[
@@ -1048,22 +1115,51 @@ const Portfolio = () => {
                 <button
                   key={item}
                   onClick={() => scrollToSection(item)}
-                  className={`block w-full text-left px-6 py-4 rounded-xl capitalize transition-all duration-300 hover:scale-105 transform ${
-                    darkMode
+                  className={`block w-full text-left px-6 py-4 rounded-xl capitalize transition-all duration-300 hover:scale-105 transform relative overflow-hidden ${
+                    activeSection === item
+                      ? darkMode
+                        ? "bg-gray-800/90 text-cyan-400 border-l-4 border-cyan-400"
+                        : "bg-gray-100/90 text-cyan-600 border-l-4 border-cyan-600"
+                      : darkMode
                       ? "text-gray-300 hover:bg-gray-800/70 hover:text-cyan-400"
                       : "text-gray-700 hover:bg-gray-100/70 hover:text-cyan-600"
                   }`}
-                  style={{ animationDelay: `${index * 50}ms` }}
+                  style={{
+                    animationDelay: `${index * 50}ms`,
+                    animation: "fadeInUp 0.5s ease-out forwards",
+                  }}
                 >
                   {item}
+
+                  {/* Active pulse effect */}
+                  {activeSection === item && (
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 w-2 h-2 bg-cyan-400 rounded-full animate-ping"></div>
+                  )}
                 </button>
               ))}
+
+              {/* Mobile CV Button */}
+              <a
+                href="#"
+                download
+                className={`flex items-center justify-center space-x-2 w-full px-6 py-4 rounded-xl font-semibold transition-all duration-300 hover:scale-105 mt-4 relative overflow-hidden ${
+                  darkMode
+                    ? "bg-gradient-to-r from-cyan-500 to-teal-500 text-white hover:from-cyan-400 hover:to-teal-400"
+                    : "bg-gradient-to-r from-cyan-600 to-teal-600 text-white hover:from-cyan-500 hover:to-teal-500"
+                } shadow-lg`}
+              >
+                <Download size={18} />
+                <span>Download CV</span>
+
+                {/* Shimmer effect */}
+                <div className="absolute inset-0 -translate-x-full hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+              </a>
             </div>
           </div>
         )}
       </nav>
       {/* Enhanced Hero Section */}
-      <section className="relative z-10 pt-24 pb-16 px-4 sm:px-6 lg:px-8 min-h-screen flex items-center">
+      <section className="relative z-10 pt-32 pb-16 px-4 sm:px-6 lg:px-8 min-h-screen flex items-center">
         <div className="max-w-6xl mx-auto text-center">
           <div className="space-y-6">
             {/* Compact Status Badges */}
@@ -1673,7 +1769,7 @@ const words = [
           </div>
         </div>
       </section>
-      {/* Enhanced Projects Section - Complete Final Version */}
+      {/* Enhanced Projects Section - With Skeleton Loading */}
       <section
         id="projects"
         ref={(el) => (sectionRefs.current.projects = el)}
@@ -1710,238 +1806,325 @@ const words = [
 
           {/* Projects Grid */}
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {projects.map((project, index) => (
-              <div
-                key={project.title}
-                className={`group relative overflow-hidden rounded-3xl transition-all duration-300 ${
-                  isMobile ? "hover:scale-100" : "hover:scale-105"
-                } cursor-pointer ${
-                  darkMode
-                    ? "bg-gray-800/60 hover:bg-gray-700/80 border border-gray-700"
-                    : "bg-white/60 hover:bg-white/90 border border-gray-200"
-                } backdrop-blur-sm shadow-xl hover:shadow-2xl ${
-                  visibleSections.has("projects")
-                    ? "translate-y-0 opacity-100"
-                    : "translate-y-20 opacity-0"
-                } flex flex-col h-full will-change-transform`}
-                style={{
-                  transitionDelay: `${index * (isMobile ? 100 : 200)}ms`,
-                  transform: "translateZ(0)",
-                }}
-              >
-                {/* Project Image Section */}
-                <div className="relative h-48 overflow-hidden flex-shrink-0 bg-gradient-to-br from-gray-100 to-gray-200">
-                  {project.image ? (
-                    <>
-                      {/* Optimized Image with Lazy Loading */}
-                      <img
-                        src={project.image}
-                        alt={`${project.title} - Project Screenshot`}
-                        className={`w-full h-full object-cover transition-all duration-300 ${
-                          isMobile
-                            ? "group-hover:scale-100"
-                            : "group-hover:scale-110 group-hover:brightness-110"
-                        }`}
-                        loading="lazy"
-                        decoding="async"
-                        onError={(e) => {
-                          e.target.style.display = "none";
-                          e.target.nextElementSibling.style.display = "block";
-                        }}
-                      />
-
-                      {/* Fallback Gradient (hidden by default) */}
-                      <div
-                        className={`absolute inset-0 bg-gradient-to-br ${
-                          project.color || "from-gray-400 to-gray-600"
-                        } flex items-center justify-center`}
-                        style={{ display: "none" }}
-                      >
-                        <div className="text-white text-4xl font-bold opacity-20">
-                          {project.title.charAt(0)}
-                        </div>
-                      </div>
-                    </>
-                  ) : (
-                    /* Default Gradient Background */
+            {projectsLoading
+              ? // Skeleton Loading State
+                [...Array(6)].map((_, index) => (
+                  <div
+                    key={`skeleton-${index}`}
+                    className={`rounded-3xl overflow-hidden ${
+                      darkMode
+                        ? "bg-gray-800/60 border border-gray-700"
+                        : "bg-white/60 border border-gray-200"
+                    } backdrop-blur-sm shadow-xl animate-pulse`}
+                  >
+                    {/* Image Skeleton */}
                     <div
-                      className={`w-full h-full bg-gradient-to-br ${
-                        project.color || "from-gray-400 to-gray-600"
-                      } flex items-center justify-center transition-all duration-300 ${
-                        isMobile ? "" : "group-hover:scale-110"
-                      }`}
-                    >
-                      <div className="text-white text-4xl font-bold opacity-30">
-                        {project.title.charAt(0)}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Gradient Overlay for text readability */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent group-hover:from-black/40 transition-all duration-300"></div>
-
-                  {/* Project Category Badge */}
-                  {project.category && (
-                    <div className="absolute top-4 left-4 z-10">
-                      <span className="bg-cyan-500/90 backdrop-blur-sm text-white text-xs font-semibold px-3 py-1 rounded-full shadow-lg">
-                        {project.category}
-                      </span>
-                    </div>
-                  )}
-
-                  {/* Floating Metrics - مبسط للموبايل */}
-                  {!isMobile && (
-                    <div className="absolute top-4 right-4 space-y-2 z-10">
-                      {Object.entries(project.metrics || {})
-                        .slice(0, 2)
-                        .map(([key, value]) => (
-                          <div
-                            key={key}
-                            className="bg-white/20 backdrop-blur-md rounded-lg px-3 py-1 text-white text-sm font-medium shadow-lg border border-white/10"
-                          >
-                            {value}
-                          </div>
-                        ))}
-                    </div>
-                  )}
-
-                  {/* Hover Glow Effect - للكمبيوتر فقط */}
-                  {!isMobile && (
-                    <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/20 to-teal-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  )}
-                </div>
-
-                {/* Content Section */}
-                <div className="p-6 flex flex-col flex-grow">
-                  {/* Project Title */}
-                  <div className="mb-4 min-h-[3rem] flex items-start">
-                    <h3
-                      className={`text-xl font-bold leading-tight ${
-                        darkMode ? "text-white" : "text-gray-900"
-                      } group-hover:text-cyan-500 transition-colors duration-300`}
-                    >
-                      {project.title}
-                    </h3>
-                  </div>
-
-                  {/* Project Description */}
-                  <div className="mb-4 min-h-[4.5rem] flex items-start">
-                    <p
-                      className={`text-sm leading-relaxed ${
-                        darkMode ? "text-gray-300" : "text-gray-600"
-                      } line-clamp-3`}
-                    >
-                      {project.description}
-                    </p>
-                  </div>
-
-                  {/* Key Features */}
-                  <div className="mb-4 min-h-[4rem]">
-                    <div className="grid grid-cols-2 gap-2">
-                      {(project.features || []).slice(0, 4).map((feature) => (
-                        <div
-                          key={feature}
-                          className={`text-xs px-2 py-1 rounded-full text-center transition-colors duration-200 ${
-                            darkMode
-                              ? "bg-gray-700 text-gray-300 group-hover:bg-gray-600"
-                              : "bg-gray-100 text-gray-600 group-hover:bg-gray-200"
-                          }`}
-                        >
-                          ✓ {feature}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Technology Stack */}
-                  <div className="mb-6 min-h-[3rem]">
-                    <div className="flex flex-wrap gap-1.5">
-                      {(project.tech || []).slice(0, 6).map((tech) => (
-                        <span
-                          key={tech}
-                          className={`px-2 py-1 text-xs rounded-full font-medium transition-all duration-200 ${
-                            darkMode
-                              ? "bg-gray-700 text-cyan-400 border border-gray-600 group-hover:bg-cyan-900/50 group-hover:border-cyan-500"
-                              : "bg-cyan-50 text-cyan-700 border border-cyan-200 group-hover:bg-cyan-100 group-hover:border-cyan-300"
-                          }`}
-                        >
-                          {tech}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Action Buttons */}
-                  <div className="mt-auto space-y-3">
-                    {/* Primary CTA Button */}
-                    <button
-                      className={`w-full text-sm font-semibold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all duration-300 ${
-                        isMobile ? "" : "group-hover:gap-4"
-                      } ${
+                      className={`h-48 ${
                         darkMode
-                          ? "bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-500 hover:to-teal-500 text-white"
-                          : "bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-600 hover:to-teal-600 text-white"
-                      } shadow-lg hover:shadow-xl transform ${
-                        isMobile ? "" : "hover:-translate-y-1"
+                          ? "bg-gradient-to-br from-gray-700 to-gray-600"
+                          : "bg-gradient-to-br from-gray-300 to-gray-400"
                       }`}
-                      onClick={() => {
-                        if (project.liveUrl) {
-                          window.open(project.liveUrl, "_blank");
-                        }
-                      }}
-                    >
-                      {project.liveUrl ? "View Live Demo" : "View Case Study"}
-                      <ArrowRight size={16} />
-                    </button>
+                    ></div>
 
-                    {/* Secondary Action Buttons */}
-                    {(project.githubUrl || project.caseStudyUrl) && (
+                    {/* Content Skeleton */}
+                    <div className="p-6 space-y-4">
+                      {/* Title */}
+                      <div
+                        className={`h-6 ${
+                          darkMode ? "bg-gray-700" : "bg-gray-300"
+                        } rounded-lg w-3/4`}
+                      ></div>
+
+                      {/* Description */}
+                      <div className="space-y-2">
+                        <div
+                          className={`h-4 ${
+                            darkMode ? "bg-gray-700" : "bg-gray-300"
+                          } rounded w-full`}
+                        ></div>
+                        <div
+                          className={`h-4 ${
+                            darkMode ? "bg-gray-700" : "bg-gray-300"
+                          } rounded w-5/6`}
+                        ></div>
+                        <div
+                          className={`h-4 ${
+                            darkMode ? "bg-gray-700" : "bg-gray-300"
+                          } rounded w-4/6`}
+                        ></div>
+                      </div>
+
+                      {/* Features Grid */}
+                      <div className="grid grid-cols-2 gap-2">
+                        {[1, 2, 3, 4].map((i) => (
+                          <div
+                            key={i}
+                            className={`h-7 ${
+                              darkMode ? "bg-gray-700" : "bg-gray-300"
+                            } rounded-full`}
+                          ></div>
+                        ))}
+                      </div>
+
+                      {/* Tech Stack */}
                       <div className="flex gap-2">
-                        {project.githubUrl && (
-                          <button
-                            className={`flex-1 text-sm py-2 px-3 rounded-lg flex items-center justify-center gap-2 transition-all duration-200 ${
-                              darkMode
-                                ? "bg-gray-700 hover:bg-gray-600 text-gray-300 hover:text-white border border-gray-600"
-                                : "bg-gray-100 hover:bg-gray-200 text-gray-700 hover:text-gray-900 border border-gray-200"
+                        {[1, 2, 3, 4].map((i) => (
+                          <div
+                            key={i}
+                            className={`h-6 w-16 ${
+                              darkMode ? "bg-gray-700" : "bg-gray-300"
+                            } rounded-full`}
+                          ></div>
+                        ))}
+                      </div>
+
+                      {/* Button */}
+                      <div
+                        className={`h-12 ${
+                          darkMode ? "bg-gray-700" : "bg-gray-300"
+                        } rounded-xl w-full`}
+                      ></div>
+                    </div>
+                  </div>
+                ))
+              : // Actual Projects
+                projects.map((project, index) => (
+                  <div
+                    key={project.title}
+                    className={`group relative overflow-hidden rounded-3xl transition-all duration-300 ${
+                      isMobile ? "hover:scale-100" : "hover:scale-105"
+                    } cursor-pointer ${
+                      darkMode
+                        ? "bg-gray-800/60 hover:bg-gray-700/80 border border-gray-700"
+                        : "bg-white/60 hover:bg-white/90 border border-gray-200"
+                    } backdrop-blur-sm shadow-xl hover:shadow-2xl ${
+                      visibleSections.has("projects")
+                        ? "translate-y-0 opacity-100"
+                        : "translate-y-20 opacity-0"
+                    } flex flex-col h-full will-change-transform`}
+                    style={{
+                      transitionDelay: `${index * (isMobile ? 100 : 200)}ms`,
+                      transform: "translateZ(0)",
+                    }}
+                  >
+                    {/* Project Image Section */}
+                    <div className="relative h-48 overflow-hidden flex-shrink-0 bg-gradient-to-br from-gray-100 to-gray-200">
+                      {/* Image Loading Skeleton */}
+                      {!imagesLoaded[index] && project.image && (
+                        <div
+                          className={`absolute inset-0 ${
+                            darkMode
+                              ? "bg-gradient-to-br from-gray-700 to-gray-600"
+                              : "bg-gradient-to-br from-gray-300 to-gray-400"
+                          } animate-pulse`}
+                        ></div>
+                      )}
+
+                      {project.image ? (
+                        <>
+                          <img
+                            src={project.image}
+                            alt={`${project.title} - Project Screenshot`}
+                            className={`w-full h-full object-cover transition-all duration-500 ${
+                              isMobile
+                                ? "group-hover:scale-100"
+                                : "group-hover:scale-110 group-hover:brightness-110"
+                            } ${
+                              !imagesLoaded[index] ? "opacity-0" : "opacity-100"
                             }`}
-                            onClick={() =>
-                              window.open(project.githubUrl, "_blank")
-                            }
+                            loading="lazy"
+                            decoding="async"
+                            onLoad={() => handleImageLoad(index)}
+                            onError={(e) => {
+                              e.target.style.display = "none";
+                              e.target.nextElementSibling.style.display =
+                                "block";
+                            }}
+                          />
+
+                          {/* Fallback Gradient */}
+                          <div
+                            className={`absolute inset-0 bg-gradient-to-br ${
+                              project.color || "from-gray-400 to-gray-600"
+                            } flex items-center justify-center`}
+                            style={{ display: "none" }}
                           >
-                            <Github size={14} />
-                            Code
-                          </button>
-                        )}
-                        {project.caseStudyUrl && (
-                          <button
-                            className={`flex-1 text-sm py-2 px-3 rounded-lg flex items-center justify-center gap-2 transition-all duration-200 ${
-                              darkMode
-                                ? "bg-gray-700 hover:bg-gray-600 text-gray-300 hover:text-white border border-gray-600"
-                                : "bg-gray-100 hover:bg-gray-200 text-gray-700 hover:text-gray-900 border border-gray-200"
-                            }`}
-                            onClick={() =>
-                              window.open(project.caseStudyUrl, "_blank")
+                            <div className="text-white text-4xl font-bold opacity-20">
+                              {project.title.charAt(0)}
+                            </div>
+                          </div>
+                        </>
+                      ) : (
+                        <div
+                          className={`w-full h-full bg-gradient-to-br ${
+                            project.color || "from-gray-400 to-gray-600"
+                          } flex items-center justify-center transition-all duration-300 ${
+                            isMobile ? "" : "group-hover:scale-110"
+                          }`}
+                        >
+                          <div className="text-white text-4xl font-bold opacity-30">
+                            {project.title.charAt(0)}
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent group-hover:from-black/40 transition-all duration-300"></div>
+
+                      {project.category && (
+                        <div className="absolute top-4 left-4 z-10">
+                          <span className="bg-cyan-500/90 backdrop-blur-sm text-white text-xs font-semibold px-3 py-1 rounded-full shadow-lg">
+                            {project.category}
+                          </span>
+                        </div>
+                      )}
+
+                      {!isMobile && (
+                        <div className="absolute top-4 right-4 space-y-2 z-10">
+                          {Object.entries(project.metrics || {})
+                            .slice(0, 2)
+                            .map(([key, value]) => (
+                              <div
+                                key={key}
+                                className="bg-white/20 backdrop-blur-md rounded-lg px-3 py-1 text-white text-sm font-medium shadow-lg border border-white/10"
+                              >
+                                {value}
+                              </div>
+                            ))}
+                        </div>
+                      )}
+
+                      {!isMobile && (
+                        <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/20 to-teal-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                      )}
+                    </div>
+
+                    {/* Content Section */}
+                    <div className="p-6 flex flex-col flex-grow">
+                      <div className="mb-4 min-h-[3rem] flex items-start">
+                        <h3
+                          className={`text-xl font-bold leading-tight ${
+                            darkMode ? "text-white" : "text-gray-900"
+                          } group-hover:text-cyan-500 transition-colors duration-300`}
+                        >
+                          {project.title}
+                        </h3>
+                      </div>
+
+                      <div className="mb-4 min-h-[4.5rem] flex items-start">
+                        <p
+                          className={`text-sm leading-relaxed ${
+                            darkMode ? "text-gray-300" : "text-gray-600"
+                          } line-clamp-3`}
+                        >
+                          {project.description}
+                        </p>
+                      </div>
+
+                      <div className="mb-4 min-h-[4rem]">
+                        <div className="grid grid-cols-2 gap-2">
+                          {(project.features || [])
+                            .slice(0, 4)
+                            .map((feature) => (
+                              <div
+                                key={feature}
+                                className={`text-xs px-2 py-1 rounded-full text-center transition-colors duration-200 ${
+                                  darkMode
+                                    ? "bg-gray-700 text-gray-300 group-hover:bg-gray-600"
+                                    : "bg-gray-100 text-gray-600 group-hover:bg-gray-200"
+                                }`}
+                              >
+                                ✓ {feature}
+                              </div>
+                            ))}
+                        </div>
+                      </div>
+
+                      <div className="mb-6 min-h-[3rem]">
+                        <div className="flex flex-wrap gap-1.5">
+                          {(project.tech || []).slice(0, 6).map((tech) => (
+                            <span
+                              key={tech}
+                              className={`px-2 py-1 text-xs rounded-full font-medium transition-all duration-200 ${
+                                darkMode
+                                  ? "bg-gray-700 text-cyan-400 border border-gray-600 group-hover:bg-cyan-900/50 group-hover:border-cyan-500"
+                                  : "bg-cyan-50 text-cyan-700 border border-cyan-200 group-hover:bg-cyan-100 group-hover:border-cyan-300"
+                              }`}
+                            >
+                              {tech}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="mt-auto space-y-3">
+                        <button
+                          className={`w-full text-sm font-semibold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all duration-300 ${
+                            isMobile ? "" : "group-hover:gap-4"
+                          } ${
+                            darkMode
+                              ? "bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-500 hover:to-teal-500 text-white"
+                              : "bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-600 hover:to-teal-600 text-white"
+                          } shadow-lg hover:shadow-xl transform ${
+                            isMobile ? "" : "hover:-translate-y-1"
+                          }`}
+                          onClick={() => {
+                            if (project.liveUrl) {
+                              window.open(project.liveUrl, "_blank");
                             }
-                          >
-                            <ExternalLink size={14} />
-                            Details
-                          </button>
+                          }}
+                        >
+                          {project.liveUrl
+                            ? "View Live Demo"
+                            : "View Case Study"}
+                          <ArrowRight size={16} />
+                        </button>
+
+                        {(project.githubUrl || project.caseStudyUrl) && (
+                          <div className="flex gap-2">
+                            {project.githubUrl && (
+                              <button
+                                className={`flex-1 text-sm py-2 px-3 rounded-lg flex items-center justify-center gap-2 transition-all duration-200 ${
+                                  darkMode
+                                    ? "bg-gray-700 hover:bg-gray-600 text-gray-300 hover:text-white border border-gray-600"
+                                    : "bg-gray-100 hover:bg-gray-200 text-gray-700 hover:text-gray-900 border border-gray-200"
+                                }`}
+                                onClick={() =>
+                                  window.open(project.githubUrl, "_blank")
+                                }
+                              >
+                                <Github size={14} />
+                                Code
+                              </button>
+                            )}
+                            {project.caseStudyUrl && (
+                              <button
+                                className={`flex-1 text-sm py-2 px-3 rounded-lg flex items-center justify-center gap-2 transition-all duration-200 ${
+                                  darkMode
+                                    ? "bg-gray-700 hover:bg-gray-600 text-gray-300 hover:text-white border border-gray-600"
+                                    : "bg-gray-100 hover:bg-gray-200 text-gray-700 hover:text-gray-900 border border-gray-200"
+                                }`}
+                                onClick={() =>
+                                  window.open(project.caseStudyUrl, "_blank")
+                                }
+                              >
+                                <ExternalLink size={14} />
+                                Details
+                              </button>
+                            )}
+                          </div>
                         )}
                       </div>
+                    </div>
+
+                    {!isMobile && (
+                      <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500/20 to-teal-500/20 rounded-3xl opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300 -z-10"></div>
                     )}
                   </div>
-                </div>
-
-                {/* Card Hover Glow Effect - للكمبيوتر فقط */}
-                {!isMobile && (
-                  <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500/20 to-teal-500/20 rounded-3xl opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300 -z-10"></div>
-                )}
-              </div>
-            ))}
+                ))}
           </div>
 
           {/* Empty State */}
-          {(!projects || projects.length === 0) && (
+          {(!projects || projects.length === 0) && !projectsLoading && (
             <div className="text-center py-12">
               <div
                 className={`text-lg ${
@@ -2360,7 +2543,24 @@ const words = [
                     : "bg-white/60 border border-gray-200"
                 } backdrop-blur-sm shadow-xl`}
               >
-                <form className="space-y-6">
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  {/* Status Message */}
+                  {formStatus.message && (
+                    <div
+                      className={`p-4 rounded-xl border-2 ${
+                        formStatus.type === "success"
+                          ? darkMode
+                            ? "bg-green-900/30 border-green-500 text-green-400"
+                            : "bg-green-50 border-green-500 text-green-700"
+                          : darkMode
+                          ? "bg-red-900/30 border-red-500 text-red-400"
+                          : "bg-red-50 border-red-500 text-red-700"
+                      }`}
+                    >
+                      {formStatus.message}
+                    </div>
+                  )}
+
                   <div className="grid md:grid-cols-2 gap-6">
                     <div>
                       <label
@@ -2372,12 +2572,17 @@ const words = [
                       </label>
                       <input
                         type="text"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleInputChange}
                         placeholder="Your name"
+                        required
+                        disabled={isSubmitting}
                         className={`w-full px-6 py-4 rounded-2xl border-2 transition-all duration-300 focus:scale-105 ${
                           darkMode
                             ? "bg-gray-700/50 border-gray-600 text-white placeholder-gray-400 focus:border-cyan-500 focus:bg-gray-700"
                             : "bg-white/50 border-gray-300 text-gray-900 placeholder-gray-500 focus:border-cyan-500 focus:bg-white"
-                        } focus:outline-none backdrop-blur-sm`}
+                        } focus:outline-none backdrop-blur-sm disabled:opacity-50 disabled:cursor-not-allowed`}
                       />
                     </div>
 
@@ -2391,12 +2596,17 @@ const words = [
                       </label>
                       <input
                         type="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleInputChange}
                         placeholder="you@example.com"
+                        required
+                        disabled={isSubmitting}
                         className={`w-full px-6 py-4 rounded-2xl border-2 transition-all duration-300 focus:scale-105 ${
                           darkMode
                             ? "bg-gray-700/50 border-gray-600 text-white placeholder-gray-400 focus:border-cyan-500 focus:bg-gray-700"
                             : "bg-white/50 border-gray-300 text-gray-900 placeholder-gray-500 focus:border-cyan-500 focus:bg-white"
-                        } focus:outline-none backdrop-blur-sm`}
+                        } focus:outline-none backdrop-blur-sm disabled:opacity-50 disabled:cursor-not-allowed`}
                       />
                     </div>
                   </div>
@@ -2410,17 +2620,25 @@ const words = [
                       Project Budget
                     </label>
                     <select
+                      name="budget"
+                      value={formData.budget}
+                      onChange={handleInputChange}
+                      disabled={isSubmitting}
                       className={`w-full px-6 py-4 rounded-2xl border-2 transition-all duration-300 focus:scale-105 ${
                         darkMode
                           ? "bg-gray-700/50 border-gray-600 text-white focus:border-cyan-500 focus:bg-gray-700"
                           : "bg-white/50 border-gray-300 text-gray-900 focus:border-cyan-500 focus:bg-white"
-                      } focus:outline-none backdrop-blur-sm`}
+                      } focus:outline-none backdrop-blur-sm disabled:opacity-50 disabled:cursor-not-allowed`}
                     >
-                      <option>Select budget range</option>
-                      <option>$5,000 - $10,000</option>
-                      <option>$10,000 - $25,000</option>
-                      <option>$25,000 - $50,000</option>
-                      <option>$50,000+</option>
+                      <option value="">Select budget range</option>
+                      <option value="$5,000 - $10,000">$5,000 - $10,000</option>
+                      <option value="$10,000 - $25,000">
+                        $10,000 - $25,000
+                      </option>
+                      <option value="$25,000 - $50,000">
+                        $25,000 - $50,000
+                      </option>
+                      <option value="$50,000+">$50,000+</option>
                     </select>
                   </div>
 
@@ -2433,13 +2651,18 @@ const words = [
                       Project Details *
                     </label>
                     <textarea
+                      name="message"
+                      value={formData.message}
+                      onChange={handleInputChange}
                       rows={6}
                       placeholder="Tell me about your project vision, goals, and timeline..."
+                      required
+                      disabled={isSubmitting}
                       className={`w-full px-6 py-4 rounded-2xl border-2 transition-all duration-300 focus:scale-105 resize-none ${
                         darkMode
                           ? "bg-gray-700/50 border-gray-600 text-white placeholder-gray-400 focus:border-cyan-500 focus:bg-gray-700"
                           : "bg-white/50 border-gray-300 text-gray-900 placeholder-gray-500 focus:border-cyan-500 focus:bg-white"
-                      } focus:outline-none backdrop-blur-sm`}
+                      } focus:outline-none backdrop-blur-sm disabled:opacity-50 disabled:cursor-not-allowed`}
                     ></textarea>
                   </div>
 
@@ -2454,16 +2677,28 @@ const words = [
 
                   <button
                     type="submit"
-                    className="group w-full bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-600 hover:to-teal-600 text-white px-8 py-4 rounded-2xl font-bold text-lg shadow-xl hover:shadow-2xl transform hover:-translate-y-1 hover:scale-105 transition-all duration-500 relative overflow-hidden"
+                    disabled={isSubmitting}
+                    className="group w-full bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-600 hover:to-teal-600 text-white px-8 py-4 rounded-2xl font-bold text-lg shadow-xl hover:shadow-2xl transform hover:-translate-y-1 hover:scale-105 transition-all duration-500 relative overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:translate-y-0"
                   >
                     <span className="relative z-10 flex items-center justify-center gap-3">
-                      Send Message
-                      <ArrowRight
-                        size={20}
-                        className="group-hover:translate-x-1 transition-transform duration-300"
-                      />
+                      {isSubmitting ? (
+                        <>
+                          <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                          Sending...
+                        </>
+                      ) : (
+                        <>
+                          Send Message
+                          <ArrowRight
+                            size={20}
+                            className="group-hover:translate-x-1 transition-transform duration-300"
+                          />
+                        </>
+                      )}
                     </span>
-                    <div className="absolute inset-0 bg-gradient-to-r from-teal-500 to-cyan-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    {!isSubmitting && (
+                      <div className="absolute inset-0 bg-gradient-to-r from-teal-500 to-cyan-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    )}
                   </button>
                 </form>
               </div>
@@ -2763,10 +2998,7 @@ const words = [
                 : "border-gray-200 text-gray-600"
             }`}
           >
-            <p>
-              © 2025 Ahmed Seleem. Crafted with 💙 using React, Tailwind CSS,
-              and modern web technologies.
-            </p>
+            <p>© 2025 Ahmed Seleem. All rights reserved.</p>
           </div>
         </div>
       </footer>
@@ -3168,15 +3400,15 @@ const words = [
         }
 
         /* Geometric animations */
-        @keyframes warm-flow {
+        @keyframes cool-flow {
           0%,
           100% {
             transform: rotate(0deg) scale(1);
-            opacity: 0.5;
+            opacity: 0.4;
           }
           50% {
             transform: rotate(3deg) scale(1.05);
-            opacity: 0.7;
+            opacity: 0.6;
           }
         }
 
@@ -3326,18 +3558,17 @@ const words = [
           }
         }
 
-        @keyframes warm-glow {
+        @keyframes cool-glow {
           0%,
           100% {
-            opacity: 0.12;
+            opacity: 0.1;
             transform: rotate(0deg) scale(1);
           }
           50% {
-            opacity: 0.22;
+            opacity: 0.18;
             transform: rotate(5deg) scale(1.03);
           }
         }
-
         /* تحسين الأداء العام */
         * {
           -webkit-transform: translateZ(0);
@@ -3664,9 +3895,249 @@ const words = [
         .transform.transition-all {
           transition-delay: 0ms !important;
         }
+
+        @keyframes header-glow {
+          0%,
+          100% {
+            opacity: 0.3;
+            transform: translateX(-10%);
+          }
+          50% {
+            opacity: 0.6;
+            transform: translateX(10%);
+          }
+        }
+
+        @keyframes spin-slow {
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(360deg);
+          }
+        }
+
+        @keyframes slideDown {
+          from {
+            opacity: 0;
+            transform: translateY(-20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        nav {
+          position: fixed !important;
+          top: 0 !important;
+          left: 0 !important;
+          right: 0 !important;
+          z-index: 100 !important;
+        }
+
+        /* Ultra Modern 3D Animations */
+        @keyframes morph-3d {
+          0%,
+          100% {
+            background-position: 0% 0%;
+            transform: perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1);
+          }
+          33% {
+            background-position: 100% 50%;
+            transform: perspective(1000px) rotateX(5deg) rotateY(10deg)
+              scale(1.05);
+          }
+          66% {
+            background-position: 50% 100%;
+            transform: perspective(1000px) rotateX(-5deg) rotateY(-10deg)
+              scale(0.98);
+          }
+        }
+
+        @keyframes blob-morph-1 {
+          0%,
+          100% {
+            transform: translate(0, 0) scale(1) rotate(0deg);
+            border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+            opacity: 0.4;
+          }
+          33% {
+            transform: translate(100px, -80px) scale(1.3) rotate(120deg);
+            border-radius: 70% 30% 50% 50% / 30% 70% 70% 30%;
+            opacity: 0.6;
+          }
+          66% {
+            transform: translate(-80px, 100px) scale(0.85) rotate(240deg);
+            border-radius: 50% 50% 30% 70% / 70% 30% 30% 70%;
+            opacity: 0.35;
+          }
+        }
+
+        @keyframes blob-morph-2 {
+          0%,
+          100% {
+            transform: translate(0, 0) scale(1) rotate(0deg);
+            border-radius: 70% 30% 30% 70% / 60% 40% 60% 40%;
+            opacity: 0.4;
+          }
+          33% {
+            transform: translate(-120px, 90px) scale(1.25) rotate(-120deg);
+            border-radius: 40% 60% 70% 30% / 50% 50% 50% 50%;
+            opacity: 0.55;
+          }
+          66% {
+            transform: translate(90px, -110px) scale(0.9) rotate(-240deg);
+            border-radius: 30% 70% 40% 60% / 70% 30% 60% 40%;
+            opacity: 0.38;
+          }
+        }
+
+        @keyframes blob-morph-3 {
+          0%,
+          100% {
+            transform: translate(0, 0) scale(1) rotate(0deg);
+            border-radius: 60% 40% 50% 50% / 40% 60% 40% 60%;
+            opacity: 0.38;
+          }
+          50% {
+            transform: translate(70px, 70px) scale(1.35) rotate(180deg);
+            border-radius: 40% 60% 60% 40% / 60% 40% 60% 40%;
+            opacity: 0.52;
+          }
+        }
+
+        @keyframes pattern-shift {
+          0% {
+            transform: translate(0, 0) rotate(0deg);
+          }
+          100% {
+            transform: translate(60px, 60px) rotate(360deg);
+          }
+        }
+
+        @keyframes spiral-spin {
+          0% {
+            transform: rotate(0deg) scale(1);
+            opacity: 0.4;
+          }
+          50% {
+            transform: rotate(180deg) scale(1.15);
+            opacity: 0.6;
+          }
+          100% {
+            transform: rotate(360deg) scale(1);
+            opacity: 0.4;
+          }
+        }
+
+        @keyframes geometric-float {
+          0%,
+          100% {
+            transform: translate(0, 0) rotate(0deg) scale(1);
+            opacity: 0.5;
+          }
+          25% {
+            transform: translate(50px, -80px) rotate(90deg) scale(1.4);
+            opacity: 0.8;
+          }
+          50% {
+            transform: translate(-60px, -150px) rotate(180deg) scale(0.7);
+            opacity: 0.3;
+          }
+          75% {
+            transform: translate(70px, -100px) rotate(270deg) scale(1.2);
+            opacity: 0.7;
+          }
+        }
+
+        @keyframes radial-pulse {
+          0%,
+          100% {
+            transform: scale(1);
+            opacity: 0.5;
+          }
+          50% {
+            transform: scale(1.2);
+            opacity: 0.8;
+          }
+        }
+
+        @keyframes mobile-blob-1 {
+          0%,
+          100% {
+            transform: translate(0, 0) scale(1);
+            border-radius: 40% 60% 60% 40% / 50% 50% 50% 50%;
+            opacity: 0.35;
+          }
+          50% {
+            transform: translate(30px, -40px) scale(1.2);
+            border-radius: 60% 40% 40% 60% / 40% 60% 40% 60%;
+            opacity: 0.5;
+          }
+        }
+
+        @keyframes mobile-blob-2 {
+          0%,
+          100% {
+            transform: translate(0, 0) scale(1);
+            border-radius: 60% 40% 40% 60% / 40% 60% 40% 60%;
+            opacity: 0.3;
+          }
+          50% {
+            transform: translate(-35px, 30px) scale(1.25);
+            border-radius: 40% 60% 60% 40% / 60% 40% 60% 40%;
+            opacity: 0.48;
+          }
+        }
+
+        @keyframes mesh-move {
+          0%,
+          100% {
+            transform: scale(1) translate(0, 0);
+          }
+          50% {
+            transform: scale(1.05) translate(20px, 20px);
+          }
+        }
+
+        @keyframes gentle-float-1 {
+          0%,
+          100% {
+            transform: translate(0, 0);
+            opacity: 0.6;
+          }
+          50% {
+            transform: translate(30px, -40px);
+            opacity: 0.8;
+          }
+        }
+
+        @keyframes gentle-float-2 {
+          0%,
+          100% {
+            transform: translate(0, 0);
+            opacity: 0.5;
+          }
+          50% {
+            transform: translate(-40px, 30px);
+            opacity: 0.7;
+          }
+        }
       `}</style>
     </div>
   );
 };
 
-export default Portfolio;   
+export default Portfolio;
